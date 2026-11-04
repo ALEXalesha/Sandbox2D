@@ -45,6 +45,7 @@ const MUTANTS = [
   // крафт и инвентарь
   { id: 'craft-free', law: 'крафт не создаёт из ничего', file: 'js/core/inventory.js', from: '    for (const [id, n] of recipe.ins) remove(inv, id, n);\n    add(', to: '    add(', unit: 'не создают предметов из ничего|ровно по рецепту' },
   { id: 'craft-no-station', law: 'крафт не создаёт из ничего', file: 'js/core/inventory.js', from: "    if (recipe.station && !(stations && stations.has(recipe.station))) return false;\n", to: '', unit: 'без станции' },
+  { id: 'progress-deadlock', law: 'с начальных вещей достижимо всё', file: 'js/core/data.js', from: "{ out: 'copper_pick', n: 1, ins: [['copper_bar', 8], ['wood', 3]], station: 'workbench' },", to: "{ out: 'copper_pick', n: 1, ins: [['copper_bar', 8], ['wood', 3]], station: 'anvil' },", unit: 'закон прогресса' },
   { id: 'stack-overflow', law: 'стопки не переполняются', file: 'js/core/inventory.js', from: 'const put = Math.min(max - s.n, left);', to: 'const put = left;', unit: 'положить и забрать' },
   // копать и строить
   { id: 'dig-two-items', law: 'копание даёт ровно один предмет', file: 'js/core/game.js', from: 'if (def.drop) dropItem(game, def.drop, 1, x + 0.5, y + 0.5);', to: 'if (def.drop) dropItem(game, def.drop, 2, x + 0.5, y + 0.5);', unit: 'копание любого блока|ровно один предмет' },

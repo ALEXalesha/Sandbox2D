@@ -134,3 +134,32 @@ test('инвентарь из сохранения: чужие предметы 
   assert.deepEqual(inv, [{ id: 'dirt', n: 999 }, null, null, null, null, { id: 'stone', n: 7 }]);
   assert.equal(Inv.sanitize('bad').length, Inv.SIZE);
 });
+
+// блоки, которые есть в мире сами (обсидиан - от встречи воды и лавы)
+const NATURAL = new Set([B.DIRT, B.GRASS, B.STONE, B.SAND, B.SNOW, B.ICE, B.LOG, B.LEAVES, B.COPPER, B.IRON, B.CRYSTAL, B.MAGMITE, B.ASH, B.OBSIDIAN, B.CACTUS, B.PINE, B.SANDSTONE]);
+
+// что можно добыть: блоки по силе лучшей кирки, добыча врагов и боссов, рецепты по станциям
+function reachable() {
+  const M = core('mobs');
+  const have = new Set(core('game').START.map(([id]) => id));
+  const stations = new Set();
+  for (let changed = true; changed;) {
+    changed = false;
+    const tier = Math.max(0, ...[...have].map((id) => (D.ITEMS[id].kind === 'pick' ? D.ITEMS[id].tier : 0)));
+    const gain = (id) => { if (id && !have.has(id)) { have.add(id); changed = true; } };
+    for (const b of D.BLOCKS) if (NATURAL.has(b.id) && b.drop && b.tier <= tier) gain(b.drop);
+    for (const w of [D.WALLS[1], D.WALLS[2], D.WALLS[5], D.WALLS[6]]) gain(w.key);
+    for (const [kind, t] of Object.entries(M.TYPES)) {
+      if (!t.boss || (kind === 'colossus' ? have.has('beacon') : have.has('obsidian_key'))) for (const [id] of t.loot) gain(id);
+    }
+    for (const id of have) { const bl = D.blockOfItem(id); if (bl >= 0 && D.BLOCKS[bl].station) stations.add(D.BLOCKS[bl].station); }
+    for (const r of D.RECIPES) if ((!r.station || stations.has(r.station)) && r.ins.every(([id]) => have.has(id))) gain(r.out);
+  }
+  return have;
+}
+
+test('закон прогресса: с начальных вещей достижим каждый предмет, без тупиков', () => {
+  const have = reachable();
+  const missing = Object.keys(D.ITEMS).filter((id) => !have.has(id));
+  assert.deepEqual(missing, []);
+});
