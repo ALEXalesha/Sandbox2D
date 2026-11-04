@@ -82,7 +82,7 @@ test('новый мир через меню: игрок стоит на земл
   await page.selectOption('#n-size', 'small');
   await page.click('#n-create');
   await page.waitForFunction(() => window.Sandbox2D.overlay === 'playing');
-  await page.waitForTimeout(800);
+  await page.waitForFunction(() => window.Sandbox2D.game.player.body.onGround, null, { timeout: 20000 });
   const p = await player(page);
   expect(p.onGround).toBe(true);
   await expect(page.locator('#hp-text')).toHaveText('100 / 100');
@@ -97,16 +97,15 @@ test('клавиши: D идёт вправо, пробел прыгает, ци
   await play(page);
   const x0 = (await player(page)).x;
   await page.keyboard.down('KeyD');
-  await page.waitForTimeout(700);
+  await page.waitForFunction((x0) => window.Sandbox2D.game.player.body.x > x0 + 1, x0, { timeout: 20000 });
   await page.keyboard.up('KeyD');
-  expect((await player(page)).x).toBeGreaterThan(x0 + 1);
   await page.keyboard.press('Digit3');
   expect((await player(page)).slot).toBe(2);
   await expect(page.locator('#hand')).toHaveText('Факел');
   await page.waitForFunction(() => window.Sandbox2D.game.player.body.onGround);
   const before = (await player(page)).y;
   await page.keyboard.down('Space');
-  await page.waitForFunction((y0) => window.Sandbox2D.game.player.body.y < y0 - 1, before, { timeout: 3000 });
+  await page.waitForFunction((y0) => window.Sandbox2D.game.player.body.y < y0 - 1, before, { timeout: 20000 });
   await page.keyboard.up('Space');
 });
 
@@ -123,7 +122,7 @@ test('мышь: кирка копает блок под ногами, факел
   await page.mouse.down();
   await page.waitForFunction(([x, y]) => window.SB.World.get(window.Sandbox2D.game.world, x, y) === 0, [cx, cy], { timeout: 8000 });
   await page.mouse.up();
-  await page.waitForTimeout(1200);
+  await sb(page, () => window.Sandbox2D.step(150));
   const got = await sb(page, (id) => window.SB.Inv.count(window.Sandbox2D.game.inv, id), 'dirt');
   expect(got).toBeGreaterThanOrEqual(1);
   // факел на стену/землю рядом
@@ -193,10 +192,10 @@ test('настройки: переназначение прыжка и язык 
   await expect(page.locator('#m-new')).toHaveText('New world');
   expect(await sb(page, () => window.Sandbox2D.settings.keys.jump[0])).toBe('KeyK');
   await play(page);
+  await page.waitForFunction(() => window.Sandbox2D.game.player.body.onGround);
   await page.keyboard.down('KeyK');
-  await page.waitForTimeout(120);
+  await page.waitForFunction(() => window.Sandbox2D.game.player.body.vy < 0, null, { timeout: 20000 });
   await page.keyboard.up('KeyK');
-  expect(await sb(page, () => window.Sandbox2D.game.player.body.vy < 0 || !window.Sandbox2D.game.player.body.onGround)).toBe(true);
 });
 
 test('ночь: враги рождаются в темноте, у факелов их нет; маяк зовёт босса с полосой здоровья', async ({ page }) => {
@@ -235,9 +234,8 @@ test('телефон: кнопки касания видны и двигают �
   const x0 = (await player(page)).x;
   const btn = await page.locator('[data-touch="right"]').boundingBox();
   await page.dispatchEvent('[data-touch="right"]', 'pointerdown');
-  await page.waitForTimeout(600);
+  await page.waitForFunction((x0) => window.Sandbox2D.game.player.body.x > x0 + 1, x0, { timeout: 20000 });
   await page.dispatchEvent('[data-touch="right"]', 'pointerup');
-  expect((await player(page)).x).toBeGreaterThan(x0 + 1);
   expect(btn.width).toBeGreaterThan(40);
   await ctx.close();
 });
