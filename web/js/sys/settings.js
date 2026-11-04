@@ -81,12 +81,10 @@
     return drop(store, 'world.' + slot) && drop(store, 'meta.' + slot);
   }
 
-  // первая пустая ячейка, иначе самая старая
+  // первая пустая ячейка; -1 - всё занято (старый мир молча не затирается)
   function freeSlot(store) {
-    const list = listWorlds(store);
-    const empty = list.find((w) => w.empty);
-    if (empty) return empty.slot;
-    return list.reduce((a, b) => (b.savedAt < a.savedAt ? b : a)).slot;
+    const empty = listWorlds(store).find((w) => w.empty);
+    return empty ? empty.slot : -1;
   }
 
   return { THEMES, LANGS, SLOTS, PREFIX, ZOOM, defaults, sanitize, load, save, listWorlds, saveWorld, loadWorld, deleteWorld, freeSlot };

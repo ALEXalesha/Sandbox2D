@@ -539,3 +539,59 @@ test('сквозной: магмитовой киркой можно проко�
   }
   assert.ok(b.y >= hell, `глубина ${b.y.toFixed(1)} из ${hell} за ${t} шагов`);
 });
+
+// ---------- находки независимого обзора: сначала закон ----------
+
+test('закон торговли: купить, переработать и продать не даёт прибыли', () => {
+  const unit = {};
+  for (const offers of Object.values(Npc.SHOP)) for (const o of offers) unit[o.id] = Math.min(unit[o.id] || Infinity, o.price / o.n);
+  for (const [id, price] of Object.entries(Npc.SELL)) if (unit[id] !== undefined) assert.ok(price <= unit[id], `${id}: купить ${unit[id]}, продать ${price}`);
+  for (const r of D.RECIPES) {
+    if (!Npc.SELL[r.out] || !r.ins.every(([id]) => unit[id] !== undefined)) continue;
+    const cost = r.ins.reduce((s, [id, n]) => s + unit[id] * n, 0);
+    assert.ok(Npc.SELL[r.out] * r.n <= cost, `${r.out}: сырьё ${cost}, продажа ${Npc.SELL[r.out] * r.n}`);
+  }
+});
+
+test('мёртвый игрок не пользуется предметами', () => {
+  const game = flat();
+  hold(game, 'dirt', 10);
+  game.player.hp = 0;
+  Gm.step(game, {});
+  assert.ok(game.player.dead > 0);
+  game.player.cd = 0;
+  assert.equal(Gm.use(game, { aimX: 23.5, aimY: 39.5 }, Gm.STEP), null);
+  assert.equal(Inv.count(game.inv, 'dirt'), 10);
+});
+
+test('сохранение во время смерти: после загрузки игрок жив и у точки появления', () => {
+  const game = flat();
+  game.player.body.x = 60;
+  game.player.hp = 0;
+  Gm.step(game, {});
+  const back = Gm.fromSave(Gm.toSave(game), { spawning: false });
+  assert.equal(back.player.hp, back.player.maxHp);
+  assert.ok(Math.abs(back.player.body.x + back.player.body.w / 2 - back.player.spawn.x) < 1, `x ${back.player.body.x}`);
+});
+
+test('предметы на земле переживают сохранение', () => {
+  const game = flat();
+  Gm.dropItem(game, 'life_shard', 1, 70.5, 38.5);
+  Gm.dropItem(game, 'stone', 7, 80.5, 38.5);
+  const back = Gm.fromSave(Gm.toSave(game), { spawning: false });
+  assert.deepEqual(back.drops.map((d) => [d.id, d.n]).sort(), [['life_shard', 1], ['stone', 7]]);
+  assert.ok(Math.abs(back.drops.find((d) => d.id === 'stone').x - game.drops.find((d) => d.id === 'stone').x) < 1e-9);
+});
+
+test('враг не рождается за краем карты света: там свет неизвестен', () => {
+  const world = flatWorld(200, 64, 40);
+  world.dims = Object.assign({}, world.dims, { spawnX: 20, hellTop: 60 });
+  const game = Gm.create({ world, spawning: false });
+  game.time = 0.75;
+  Gm.relight(game);
+  const m = game.light;
+  const x = m.x0 + m.w + 3;
+  assert.equal(Wd.get(game.world, x, 39), B.AIR);
+  assert.equal(M.kindAt(game, x, 39), null, 'ночью, но за картой света');
+  assert.notEqual(M.kindAt(game, m.x0 + m.w - 3, 39), null, 'внутри карты ночью можно');
+});

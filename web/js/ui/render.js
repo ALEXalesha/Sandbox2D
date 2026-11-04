@@ -372,8 +372,9 @@
       return { x0: r.cam.x - sw / s / 2, y0: r.cam.y - sh / s / 2, x1: r.cam.x + sw / s / 2, y1: r.cam.y + sh / s / 2 };
     };
 
+    // масштаб тот же, каким нарисован кадр (на большом экране он не меньше minZoom)
     r.toWorld = function (sx, sy) {
-      const s = TS * r.zoom;
+      const s = TS * (r.zoomUsed || r.zoom);
       return [(sx - r.world.x) / s, (sy - r.world.y) / s];
     };
 

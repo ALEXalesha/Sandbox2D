@@ -47,7 +47,7 @@ test('клавиши из хранилища: мусор и повторы от�
 test('цифры выбирают ячейку, имена клавиш понятны', () => {
   assert.equal(K.slotFor('Digit1'), 0);
   assert.equal(K.slotFor('Digit0'), 9);
-  assert.equal(K.slotFor('Numpad5'), 4);
+  assert.equal(K.slotFor('Numpad5'), -1, 'цифровой блок свободен для действий');
   assert.equal(K.slotFor('KeyA'), -1);
   assert.equal(K.slotFor(undefined), -1);
   assert.equal(K.keyName('KeyA'), 'A');
@@ -94,7 +94,7 @@ test('ячейки миров: сохранить, список, загрузи�
   assert.equal(S.saveWorld(store, 7, 'X', { name: 'нет' }), false);
   assert.equal(S.freeSlot(store), 2);
   S.saveWorld(store, 2, 'DATA2', { name: 'Третий', savedAt: 200 });
-  assert.equal(S.freeSlot(store), 1, 'самая старая');
+  assert.equal(S.freeSlot(store), -1, 'всё занято');
   const list = S.listWorlds(store);
   assert.deepEqual(list.map((w) => w.name), ['Первый', 'Второй', 'Третий']);
   assert.equal(list[0].day, 2);
@@ -125,4 +125,17 @@ test('перевод: у всех ключей оба языка, у всех п
   assert.equal(I.t('en', 'nothing.here'), 'nothing.here');
   assert.equal(I.t('ru', 'day', {}), 'День {n}');
   for (const lang of ['ru', 'en']) for (const v of Object.values(I.DICT[lang])) assert.ok(!/[—–]/.test(v), 'только дефис: ' + v);
+});
+
+test('цифры цифрового блока можно назначить, и они работают как действие, а не как ячейка', () => {
+  const b = K.defaults();
+  assert.equal(K.rebind(b, 'inventory', 0, 'Numpad5'), true);
+  assert.equal(K.actionFor(b, 'Numpad5'), 'inventory');
+  assert.equal(K.slotFor('Numpad5'), -1);
+});
+
+test('все три ячейки заняты - свободной нет, старый мир молча не затирается', () => {
+  const store = fakeStore();
+  for (let i = 0; i < 3; i++) S.saveWorld(store, i, 'D', { name: 'w' + i, savedAt: i });
+  assert.equal(S.freeSlot(store), -1);
 });

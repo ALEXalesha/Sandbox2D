@@ -182,8 +182,10 @@
     const seedText = o.seed !== undefined ? String(o.seed) : $('n-seed').value.trim();
     const seed = seedText ? N.seedFrom(seedText) : (Math.random() * 2147483647) | 0;
     const size = SIZES[o.size || $('n-size').value] || SIZES.normal;
+    const slot = St.freeSlot(store);
+    if (slot < 0) { toast(t('slotsFull')); show('load'); return null; }
     const game = Gm.create({ seed, W: size[0], H: size[1], name, spawning: o.spawning !== false });
-    startGame(game, St.freeSlot(store));
+    startGame(game, slot);
     saveNow();
     return game;
   }

@@ -5,10 +5,10 @@
 /* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
-  const api = factory(req ? require('./world.js') : root.SB.World, req ? require('./inventory.js') : root.SB.Inv);
+  const api = factory(req ? require('./world.js') : root.SB.World, req ? require('./inventory.js') : root.SB.Inv, req ? require('./data.js') : root.SB.Data);
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).Save = api;
-})(typeof self !== 'undefined' ? self : this, function (Wd, Inv) {
+})(typeof self !== 'undefined' ? self : this, function (Wd, Inv, D) {
 /* c8 ignore stop */
   'use strict';
   const VERSION = 1;
@@ -97,6 +97,17 @@
     return { fg: all.slice(0, CELLS), wall: all.slice(CELLS, CELLS * 2), liq: all.slice(CELLS * 2) };
   }
 
+  // блоки, стены и жидкости только известные: иначе игра упадёт на первом же шаге
+  function validCells(c) {
+    for (let i = 0; i < CELLS; i++) {
+      if (c.fg[i] >= D.BLOCKS.length || c.wall[i] >= D.WALLS.length) return false;
+      const t = c.liq[i] >> 4;
+      const a = c.liq[i] & 15;
+      if (c.liq[i] !== 0 && (t < 1 || t > 2 || a < 1 || a > 8)) return false;
+    }
+    return true;
+  }
+
   // state: { name, world, player: {x,y,hp,maxHp}, inv, time, residents, bosses, stats }
   function serialize(state) {
     const chunks = {};
@@ -114,6 +125,7 @@
       residents: (state.residents || []).map((r) => ({ kind: r.kind, home: r.home })),
       bosses: Object.assign({}, state.bosses || {}),
       stats: Object.assign({}, state.stats || {}),
+      drops: (state.drops || []).filter((d) => d.n > 0).slice(0, 500).map((d) => ({ id: d.id, n: d.n, x: d.x, y: d.y })),
       chunks,
     });
   }
@@ -136,7 +148,7 @@
       const cy = +m[2];
       if (cx >= world.cw || cy >= world.chh) return null;
       const data = unpackChunk(chunks[k]);
-      if (!data) return null;
+      if (!data || !validCells(data)) return null;
       const c = Wd.chunk(world, cx, cy);
       c.fg = data.fg;
       c.wall = data.wall;
@@ -156,6 +168,7 @@
       inv: Inv.sanitize(o.inv),
       residents: Array.isArray(o.residents) ? o.residents.filter((r) => r && typeof r.kind === 'string' && Array.isArray(r.home)).map((r) => ({ kind: r.kind, home: [num(r.home[0], 0, W, 0), num(r.home[1], 0, H, 0)] })) : [],
       bosses: o.bosses && typeof o.bosses === 'object' ? { colossus: o.bosses.colossus === true, heart: o.bosses.heart === true } : {},
+      drops: Array.isArray(o.drops) ? o.drops.filter((d) => d && Inv.sanitize([d], 1)[0]).slice(0, 500).map((d) => ({ id: d.id, n: Math.min(Math.floor(d.n), Inv.stackOf(d.id)), x: num(d.x, 0, W, 0), y: num(d.y, -50, H, 0) })) : [],
       stats: o.stats && typeof o.stats === 'object' ? { kills: num(o.stats.kills, 0, 1e9, 0), coins: num(o.stats.coins, 0, 1e9, 0) } : { kills: 0, coins: 0 },
     };
   }

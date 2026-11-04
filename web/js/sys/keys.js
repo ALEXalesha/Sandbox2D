@@ -66,9 +66,9 @@
     return null;
   }
 
-  // слот панели по клавише: Digit1..Digit9 - 0..8, Digit0 - 9
+  // слот панели по клавише: Digit1..Digit9 - 0..8, Digit0 - 9 (цифры цифрового блока свободны)
   function slotFor(code) {
-    const m = /^(?:Digit|Numpad)(\d)$/.exec(code || '');
+    const m = /^Digit(\d)$/.exec(code || '');
     if (!m) return -1;
     const d = +m[1];
     return d === 0 ? 9 : d - 1;

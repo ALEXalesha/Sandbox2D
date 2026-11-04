@@ -239,3 +239,31 @@ test('телефон: кнопки касания видны и двигают �
   expect(btn.width).toBeGreaterThan(40);
   await ctx.close();
 });
+
+test('большое окно при масштабе 1: клик попадает в ту клетку, что под указателем', async ({ page }) => {
+  await page.setViewportSize({ width: 2560, height: 1400 });
+  await open(page, { settings: { zoom: 1 } });
+  await play(page);
+  const p = await player(page);
+  const cx = Math.floor(p.x + p.w / 2);
+  const cy = Math.round(p.y + p.h);
+  const back = await sb(page, ([x, y]) => {
+    const R = window.Sandbox2D.render;
+    const [sx, sy] = R.toScreen(x + 0.5, y + 0.5);
+    return R.toWorld(sx, sy);
+  }, [cx, cy]);
+  expect(Math.floor(back[0])).toBe(cx);
+  expect(Math.floor(back[1])).toBe(cy);
+  expect(await sb(page, () => window.Sandbox2D.render.zoomUsed)).toBeGreaterThan(1);
+});
+
+test('все три ячейки заняты: новый мир не создаётся и старые целы', async ({ page }) => {
+  await open(page);
+  for (let i = 0; i < 3; i++) { await play(page, { name: 'Мир ' + i, seed: i + 1 }); await sb(page, () => window.Sandbox2D.toMenu()); }
+  await page.click('#m-new');
+  await page.click('#n-create');
+  await expect(page.locator('#s-load')).toBeVisible();
+  await expect(page.locator('.toast').last()).toContainText('заняты');
+  const names = await sb(page, () => window.SB.Settings.listWorlds(localStorage).map((w) => w.name));
+  expect(names).toEqual(['Мир 0', 'Мир 1', 'Мир 2']);
+});

@@ -37,7 +37,7 @@
   });
   const SELL = Object.freeze({
     copper_ore: 1, iron_ore: 2, crystal_ore: 4, magmite_ore: 6, goo: 1, shadow_dust: 2, ember: 3,
-    copper_bar: 4, iron_bar: 7, crystal: 9, magmite_bar: 20,
+    copper_bar: 3, iron_bar: 5, crystal: 9, magmite_bar: 20,
   });
   const HEAL_PRICE = 5;
 

@@ -91,6 +91,11 @@
     return { x0, y0, w, h, data: out };
   }
 
+  // клетка внутри карты света (вне её свет неизвестен)
+  function has(map, x, y) {
+    return !!map && x >= map.x0 && y >= map.y0 && x < map.x0 + map.w && y < map.y0 + map.h;
+  }
+
   function at(map, x, y) {
     if (!map) return 0;
     const i = x - map.x0;
@@ -99,5 +104,5 @@
     return map.data[j * map.w + i];
   }
 
-  return { MAX, MARGIN, LAVA_LIGHT, flood, compute, at };
+  return { MAX, MARGIN, LAVA_LIGHT, flood, compute, has, at };
 });

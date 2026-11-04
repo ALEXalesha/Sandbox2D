@@ -104,3 +104,13 @@ test('испорченное сохранение - null, а не падение
   const noRes = S.deserialize(JSON.stringify({ ...o, residents: 'x' }));
   assert.deepEqual(noRes.residents, []);
 });
+
+test('сохранение с неизвестным блоком, стеной или жидкостью отвергается', () => {
+  const D = core('data');
+  for (const [layer, bad] of [['fg', 200], ['wall', 99], ['liq', 0x39], ['liq', 0x10]]) {
+    const world = Wd.create(3, 128, 128);
+    Wd.set(world, 5, 5, D.B.PLANKS);
+    Wd.chunk(world, 0, 0)[layer][7] = bad;
+    assert.equal(S.deserialize(S.serialize(state(world))), null, `${layer}=${bad}`);
+  }
+});

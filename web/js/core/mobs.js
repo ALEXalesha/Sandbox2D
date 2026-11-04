@@ -49,7 +49,7 @@
   // где можно родиться: вид по месту, null - нельзя
   function kindAt(game, x, y) {
     const world = game.world;
-    if (Lt.at(game.light, x, y) >= DARK) return null;
+    if (!Lt.has(game.light, x, y) || Lt.at(game.light, x, y) >= DARK) return null;
     if (Wd.get(world, x, y) !== 0 || Wd.getLiq(world, x, y)) return null;
     if (y >= world.dims.hellTop) return 'imp';
     const depth = y - Wd.skyY(world, x);

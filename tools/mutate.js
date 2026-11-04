@@ -28,7 +28,7 @@ const MUTANTS = [
   // сохранение
   { id: 'save-no-walls', law: 'сохранение туда-обратно', file: 'js/core/save.js', from: '    all.set(c.wall, CELLS);\n', to: '', unit: 'сохранение туда-обратно' },
   { id: 'save-rle-long', law: 'сохранение туда-обратно', file: 'js/core/save.js', from: 'n < 255) n++;', to: 'n < 256) n++;', unit: 'RLE и base64|сохранение туда-обратно' },
-  { id: 'save-trusts-input', law: 'испорченное сохранение', file: 'js/core/save.js', from: '      if (!data) return null;\n      const c = Wd.chunk', to: '      if (!data) continue;\n      const c = Wd.chunk', unit: 'испорченное сохранение' },
+  { id: 'save-trusts-input', law: 'испорченное сохранение', file: 'js/core/save.js', from: '      if (!data || !validCells(data)) return null;\n      const c = Wd.chunk', to: '      if (!data) continue;\n      const c = Wd.chunk', unit: 'испорченное сохранение' },
   // жидкости
   { id: 'liquid-rest-twice', law: 'объём жидкости сохраняется', file: 'js/core/liquid.js', from: 'if (rest > 0) { mine++; rest--; }', to: 'if (rest > 0) { mine++; }', unit: 'закон объёма|растекается' },
   { id: 'liquid-consumed-uncounted', law: 'объём жидкости сохраняется', file: 'js/core/liquid.js', from: '      st.consumed.water += take;\n', to: '', unit: 'закон объёма|обсидиан' },
@@ -52,7 +52,7 @@ const MUTANTS = [
   { id: 'place-into-player', law: 'блок не ставится в игрока', file: 'js/core/game.js', from: "    if (def.solid && blocksBody(game, x, y)) return 'body';\n", to: '', unit: 'стройка|не оказывается внутри' },
   { id: 'weak-pick-digs', law: 'слабая кирка не берёт руду', file: 'js/core/game.js', from: 'if (!wall && def.tier > pick.tier) {', to: 'if (false) {', unit: 'слабая кирка' },
   // свет решает
-  { id: 'spawn-in-light', law: 'враги рождаются только в темноте', file: 'js/core/mobs.js', from: '    if (Lt.at(game.light, x, y) >= DARK) return null;\n', to: '', unit: 'закон света' },
+  { id: 'spawn-in-light', law: 'враги рождаются только в темноте', file: 'js/core/mobs.js', from: '    if (!Lt.has(game.light, x, y) || Lt.at(game.light, x, y) >= DARK) return null;\n', to: '    if (!Lt.has(game.light, x, y)) return null;\n', unit: 'закон света' },
   { id: 'no-burn', law: 'враг горит в ярком свете', file: 'js/core/mobs.js', from: '          m.hp -= 12 * dt;\n', to: '', unit: 'горит в ярком' },
   { id: 'colossus-by-day', law: 'боссы зовутся по правилу', file: 'js/core/game.js', from: "    if (it.boss === 'colossus' && !T.isNight(game.time)) return 'day';\n", to: '', unit: 'боссы: колосс' },
   // жители и торговля
@@ -62,6 +62,16 @@ const MUTANTS = [
   { id: 'night-bright', law: 'ночь тёмная', file: 'js/core/time.js', from: '    if (x < 0.92) return NIGHT_LIGHT;', to: '    if (x < 0.92) return 1;', unit: 'яркость: день' },
   { id: 'rebind-duplicate', law: 'клавиша не стоит на двух действиях', file: 'js/sys/keys.js', from: '    for (const a of ACTIONS) bindings[a] = bindings[a].map((c) => (c === code ? null : c));\n', to: '', unit: 'переназначение' },
   { id: 'settings-bad-theme', law: 'настройки из хранилища разумные', file: 'js/sys/settings.js', from: 'theme: THEMES.includes(s.theme) ? s.theme : d.theme,', to: 'theme: s.theme || d.theme,', unit: 'настройки: разумные' },
+  // находки независимого обзора
+  { id: 'trade-profit', law: 'торговля без прибыли из воздуха', file: 'js/core/npc.js', from: 'copper_bar: 3, iron_bar: 5,', to: 'copper_bar: 3, iron_bar: 7,', unit: 'закон торговли' },
+  { id: 'dead-uses-items', law: 'мёртвый не пользуется предметами', file: 'js/core/game.js', from: 'if (!s || p.dead > 0) return null;', to: 'if (!s) return null;', unit: 'мёртвый игрок' },
+  { id: 'save-loses-drops', law: 'предметы на земле переживают сохранение', file: 'js/core/game.js', from: '    for (const d of s.drops) dropItem(game, d.id, d.n, d.x + 0.3, d.y + 0.3);\n', to: '', unit: 'предметы на земле' },
+  { id: 'save-alive-dead', law: 'смерть в сохранении ведёт к возрождению', file: 'js/core/game.js', from: '    if (s.player.hp <= 0) respawn(game);\n', to: '', unit: 'во время смерти' },
+  { id: 'save-unknown-block', law: 'сохранение с неизвестным блоком отвергается', file: 'js/core/save.js', from: '      if (!data || !validCells(data)) return null;', to: '      if (!data) return null;', unit: 'неизвестным блоком' },
+  { id: 'spawn-outside-light-map', law: 'враги рождаются только в темноте', file: 'js/core/mobs.js', from: 'if (!Lt.has(game.light, x, y) || Lt.at(game.light, x, y) >= DARK) return null;', to: 'if (Lt.at(game.light, x, y) >= DARK) return null;', unit: 'за краем карты света' },
+  { id: 'numpad-is-slot', law: 'клавиша работает как назначенное действие', file: 'js/sys/keys.js', from: "const m = /^Digit(\\d)$/.exec(code || '');", to: "const m = /^(?:Digit|Numpad)(\\d)$/.exec(code || '');", unit: 'цифрового блока' },
+  { id: 'slots-overwrite', law: 'старый мир молча не затирается', file: 'js/sys/settings.js', from: '    return empty ? empty.slot : -1;', to: '    return empty ? empty.slot : 0;', unit: 'ячейки заняты|ячейки миров' },
+  { id: 'web-click-wrong-zoom', law: 'клик попадает в клетку под указателем', file: 'js/ui/render.js', from: '      const s = TS * (r.zoomUsed || r.zoom);\n      return [(sx', to: '      const s = TS * r.zoom;\n      return [(sx', web: 'большое окно' },
   // страница
   { id: 'web-theme-sticks', law: 'темы переключаются', file: 'js/ui/app.js', from: "    if (th === 'glass') document.documentElement.removeAttribute('data-theme');\n    else", to: '    ', web: 'снимки тем' },
   { id: 'web-pointer-lock', law: 'захвата указателя нет', file: 'js/ui/app.js', from: "      if (e.button === 0) {\n        app.mouse.left = true;", to: "      if (e.button === 0) {\n        view.requestPointerLock();\n        app.mouse.left = true;", web: 'мышь:' },

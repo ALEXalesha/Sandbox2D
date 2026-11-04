@@ -307,7 +307,7 @@
   function use(game, input, dt) {
     const p = game.player;
     const s = game.inv[p.slot];
-    if (!s) return null;
+    if (!s || p.dead > 0) return null;
     const it = D.ITEMS[s.id];
     const ax = Math.floor(input.aimX);
     const ay = Math.floor(input.aimY);
@@ -458,10 +458,12 @@
 
   function toSave(game) {
     const p = game.player;
+    const dead = p.dead > 0;
     return Sv.serialize({
       name: game.name, world: game.world, time: game.time, day: game.day,
-      player: { x: p.body.x, y: p.body.y, hp: p.hp, maxHp: p.maxHp, shards: p.shards },
+      player: { x: p.body.x, y: p.body.y, hp: dead ? 0 : p.hp, maxHp: p.maxHp, shards: p.shards },
       inv: game.inv, residents: game.residents, bosses: game.bosses, stats: game.stats,
+      drops: game.drops.map((d) => ({ id: d.id, n: d.n, x: d.x, y: d.y })),
     });
   }
 
@@ -478,9 +480,13 @@
     p.body.x = s.player.x;
     p.body.y = s.player.y;
     p.maxHp = s.player.maxHp;
-    p.hp = Math.max(1, s.player.hp);
+    p.hp = s.player.hp;
     p.shards = s.player.shards;
     P.unstick(game.world, p.body);
+    // сохранились во время смерти: возрождение у точки появления
+    if (s.player.hp <= 0) respawn(game);
+    game.events.length = 0;
+    for (const d of s.drops) dropItem(game, d.id, d.n, d.x + 0.3, d.y + 0.3);
     for (const c of Wd.dirtyChunks(game.world)) {
       for (let i = 0; i < c.fg.length; i++) if (c.fg[i] === B.CAMPFIRE) game.campfires.push([c.cx * 32 + (i & 31), c.cy * 32 + (i >> 5)]);
     }
