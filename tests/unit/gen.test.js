@@ -190,3 +190,21 @@ test('справочник: у каждого рецепта известные 
   assert.equal(D.blockOfItem('iron_pick'), -1);
   assert.equal(D.blockOfItem('nothing'), -1);
 });
+
+test('озёра лежат у дна пещер: под водой в двух клетках есть порода или вода', () => {
+  const world = Wd.create(5, 800, 576);
+  let water = 0;
+  let floating = 0;
+  for (const c of world.chunks.values()) void c;
+  for (let x = 1; x < 799; x++) {
+    for (let y = 150; y < world.dims.hellTop; y++) {
+      const v = Wd.getLiq(world, x, y);
+      if (v >> 4 !== 1) continue;
+      water++;
+      const below = [1, 2].some((k) => Wd.solidAt(world, x, y + k) || Wd.getLiq(world, x, y + k) >> 4 === 1);
+      if (!below) floating++;
+    }
+  }
+  assert.ok(water > 100, `воды ${water}`);
+  assert.equal(floating, 0, 'висящей воды нет');
+});

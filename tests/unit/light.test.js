@@ -74,7 +74,7 @@ test('лава светится, кристалл тоже', () => {
   Wd.set(world, 30, 30, B.CRYSTAL);
   const map = Lt.compute(world, 0, 0, 48, 48, 0);
   assert.equal(Lt.at(map, 10, 10), Lt.LAVA_LIGHT);
-  assert.equal(Lt.at(map, 30, 30), 9);
+  assert.equal(Lt.at(map, 30, 30), 7);
 });
 
 test('добавочный источник (факел в руке) светит и тоже не дальше своего радиуса', () => {

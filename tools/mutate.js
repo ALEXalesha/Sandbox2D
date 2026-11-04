@@ -24,6 +24,7 @@ const MUTANTS = [
   { id: 'gen-local-column', law: 'чанки на границах совпадают', file: 'js/core/gen.js', from: 'const col = column(seed, x, d);', to: 'const col = column(seed, i, d);', unit: 'чанки на границах' },
   { id: 'gen-plants-shift', law: 'чанки на границах совпадают', file: 'js/core/gen.js', from: 'const plants = plantsAll.slice(i, i + 7);', to: 'const plants = plantsAll.slice(i + 1, i + 8);', unit: 'чанки на границах' },
   { id: 'gen-order', law: 'чанк не зависит от порядка', file: 'js/core/world.js', from: '      c = G.genChunk(world.seed, cx, cy, world.dims);', to: '      c = G.genChunk(world.seed + world.chunks.size, cx, cy, world.dims);', unit: 'не зависит от порядка' },
+  { id: 'gen-floating-lakes', law: 'озёра лежат у дна пещер', file: 'js/core/gen.js', from: 'const floor = !caveAt(seed, x, y + 1, depth + 1) || !caveAt(seed, x, y + 2, depth + 2);', to: 'const floor = true;', unit: 'озёра лежат' },
   // сохранение
   { id: 'save-no-walls', law: 'сохранение туда-обратно', file: 'js/core/save.js', from: '    all.set(c.wall, CELLS);\n', to: '', unit: 'сохранение туда-обратно' },
   { id: 'save-rle-long', law: 'сохранение туда-обратно', file: 'js/core/save.js', from: 'n < 255) n++;', to: 'n < 256) n++;', unit: 'RLE и base64|сохранение туда-обратно' },

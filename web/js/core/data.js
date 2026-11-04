@@ -41,7 +41,7 @@
   def(B.PLANKS, 'planks', { hard: 0.5, colors: ['#b5824c', '#a3733f', '#c4925a'] });
   def(B.COPPER, 'copper_ore', { hard: 1.1, tier: 1, colors: ['#7c7f86', '#d9824a', '#f0a066'] });
   def(B.IRON, 'iron_ore', { hard: 1.4, tier: 2, colors: ['#7c7f86', '#c9b7a6', '#e6d8ca'] });
-  def(B.CRYSTAL, 'crystal_ore', { hard: 1.8, tier: 3, light: 9, colors: ['#4c4f66', '#62d0ff', '#b8f0ff'] });
+  def(B.CRYSTAL, 'crystal_ore', { hard: 1.8, tier: 3, light: 7, colors: ['#4c4f66', '#62d0ff', '#b8f0ff'] });
   def(B.MAGMITE, 'magmite_ore', { hard: 2.2, tier: 4, light: 6, colors: ['#3a2a2a', '#ff6a2a', '#ffb347'] });
   def(B.ASH, 'ash', { hard: 0.5, tier: 1, colors: ['#4a4446', '#3d3739', '#5a5356'] });
   def(B.OBSIDIAN, 'obsidian', { hard: 2.5, tier: 3, colors: ['#22182e', '#2f2240', '#46345e'] });

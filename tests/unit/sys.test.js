@@ -118,6 +118,8 @@ test('перевод: у всех ключей оба языка, у всех п
   }
   for (const k of ['drop', 'shade', 'mole', 'imp', 'colossus', 'heart']) assert.ok(I.DICT.en['mob.' + k]);
   for (const a of K.ACTIONS) assert.ok(I.DICT.ru['act.' + a]);
+  for (const k of ['trader', 'healer']) assert.ok(I.DICT.en['msg.arrive.' + k] && I.DICT.ru['npc.' + k + '.hello']);
+  for (const k of ['colossus', 'heart']) assert.ok(I.DICT.ru['msg.boss.' + k] && I.DICT.en['msg.bossDown.' + k]);
   assert.equal(I.t('en', 'day', { n: 3 }), 'Day 3');
   assert.equal(I.t('de', 'play'), 'Играть');
   assert.equal(I.t('en', 'nothing.here'), 'nothing.here');

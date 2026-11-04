@@ -93,6 +93,12 @@
     return B.AIR;
   }
 
+  // пещера: тоннели (тонкая полоса шума) и залы (пятна шума), глубже - шире
+  function caveAt(seed, x, y, depth) {
+    const tunnel = depth > 3 && Math.abs(N.fbm2(seed + 71, x, y * 1.8, 3, 60) - 0.5) < 0.03 + Math.min(0.025, depth / 6000);
+    return tunnel || (depth > 12 && N.fbm2(seed + 83, x, y, 3, 30) > 0.66 - Math.min(0.06, depth / 4000));
+  }
+
   // одна клетка: [блок, стена, жидкость]
   function cell(seed, x, y, col, plants, d) {
     if (x <= 0 || x >= d.W - 1 || y >= col.floor) return [B.BEDROCK, W.NONE, 0];
@@ -125,12 +131,12 @@
     else if (fg === B.DIRT || fg === B.SNOW || fg === B.GRASS) wall = W.DIRT;
     else wall = W.STONE;
 
-    const tunnel = depth > 3 && Math.abs(N.fbm2(seed + 71, x, y * 1.8, 3, 60) - 0.5) < 0.03 + Math.min(0.025, depth / 6000);
-    const blob = depth > 12 && N.fbm2(seed + 83, x, y, 3, 30) > 0.66 - Math.min(0.06, depth / 4000);
-    if (tunnel || blob) {
+    if (caveAt(seed, x, y, depth)) {
+      // озёра только у дна пещеры: в двух клетках ниже уже порода
       let liq = 0;
-      if (y < col.hell - 40 && depth > 20 && N.fbm2(seed + 131, x, y, 2, 25) > 0.67) liq = (L.WATER << 4) | L.FULL;
-      else if (y > d.H * 0.7 && N.fbm2(seed + 137, x, y, 2, 25) > 0.7) liq = (L.LAVA << 4) | L.FULL;
+      const floor = !caveAt(seed, x, y + 1, depth + 1) || !caveAt(seed, x, y + 2, depth + 2);
+      if (floor && y < col.hell - 40 && depth > 20 && N.fbm2(seed + 131, x, y, 2, 25) > 0.6) liq = (L.WATER << 4) | L.FULL;
+      else if (floor && y > d.H * 0.7 && N.fbm2(seed + 137, x, y, 2, 25) > 0.64) liq = (L.LAVA << 4) | L.FULL;
       return [B.AIR, wall, liq];
     }
     if (fg === B.STONE) {
@@ -172,5 +178,5 @@
     return { x: x + 0.5, y: surfaceAt(seed, x, d) };
   }
 
-  return { CH, BIOMES, dims, biomeAt, surfaceAt, hellTopAt, column, plantAt, cell, genChunk, spawnPoint };
+  return { CH, BIOMES, dims, biomeAt, surfaceAt, hellTopAt, column, plantAt, caveAt, cell, genChunk, spawnPoint };
 });

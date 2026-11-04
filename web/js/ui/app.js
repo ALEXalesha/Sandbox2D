@@ -430,10 +430,10 @@
       SB.Audio.play(e);
       if (e.type === 'pickup' || e.type === 'place' || e.type === 'craft' || e.type === 'drink' || e.type === 'death') invChanged = true;
       if (e.type === 'hard') toast(t('msg.hard'));
-      else if (e.type === 'arrive') toast(t('msg.arrive', { who: t('npc.' + e.kind) }));
+      else if (e.type === 'arrive') toast(t('msg.arrive.' + e.kind));
       else if (e.type === 'leave') toast(t('msg.leave'));
-      else if (e.type === 'boss') toast(t('msg.boss', { who: t('mob.' + e.kind) }));
-      else if (e.type === 'bossDown') toast(t('msg.bossDown', { who: t('mob.' + e.kind) }));
+      else if (e.type === 'boss') toast(t('msg.boss.' + e.kind));
+      else if (e.type === 'bossDown') toast(t('msg.bossDown.' + e.kind));
       else if (e.type === 'craft') toast(t('msg.craft', { item: itemName(e.id) }));
       else if (e.type === 'death' && e.lost) toast(t('lostCoins', { n: e.lost }));
     }

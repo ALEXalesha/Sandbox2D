@@ -330,9 +330,9 @@
       const w = 4096;
       for (const [g, color, amp, base, freq] of [[r.hillsFar, 0x5d8a6a, 60, 0.55, 0.004], [r.hillsNear, 0x3f6e4c, 50, 0.7, 0.007]]) {
         g.clear();
-        g.moveTo(0, 2000);
-        for (let x = 0; x <= w; x += 16) g.lineTo(x, base * 1000 - (N.fbm1(g === r.hillsFar ? 11 : 12, x * freq, 3, 1) - 0.5) * amp * 4);
-        g.lineTo(w, 2000);
+        g.moveTo(0, 3000);
+        for (let x = 0; x <= w; x += 16) g.lineTo(x, -(N.fbm1(g === r.hillsFar ? 11 : 12, x * freq, 3, 1) - 0.5 + base * 0.2) * amp * 4);
+        g.lineTo(w, 3000);
         g.closePath();
         g.fill({ color });
       }
@@ -349,9 +349,10 @@
       app.renderer.background.color = (c[0] << 16) | (c[1] << 8) | c[2];
       const sx = -((r.cam.x * TS * 0.15) % 2048);
       r.hillsFar.x = sx - 1024;
-      r.hillsFar.y = sh * 0.35 - camDepth * 2;
+      const px = TS * (r.zoomUsed || r.zoom);
+      r.hillsFar.y = sh * 0.46 - camDepth * px * 0.15;
       r.hillsNear.x = -((r.cam.x * TS * 0.3) % 2048) - 1024;
-      r.hillsNear.y = sh * 0.25 - camDepth * 4;
+      r.hillsNear.y = sh * 0.56 - camDepth * px * 0.3;
       const tint = Math.round(80 + 175 * dl);
       r.hillsFar.tint = (tint << 16) | (tint << 8) | tint;
       r.hillsNear.tint = (tint << 16) | (tint << 8) | tint;
