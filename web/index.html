@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Sandbox2D</title>
+  <meta name="application-name" content="Sandbox2D">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Sandbox2D: a 2D block sandbox where light rules - dig, build, light the dark; a fan game">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game" aria-label="Игровое поле" data-i18n-aria="title"></div>
+
+  <div id="hud" hidden>
+    <div id="hotbar" class="glass"></div>
+    <div id="hand" class="hand"></div>
+    <div id="stats" class="glass">
+      <div class="hp" title="Здоровье" data-i18n-title="hp"><div id="hp-bar"></div><span id="hp-text"></span></div>
+      <div id="clock"></div>
+    </div>
+    <div id="boss" class="glass boss" hidden><span id="boss-name"></span><div class="bar"><i id="boss-bar"></i></div></div>
+    <div id="toasts"></div>
+    <div id="dead" class="dead" hidden><b data-i18n="dead"></b><span id="dead-info"></span></div>
+    <div id="fps" class="fps" hidden></div>
+    <button id="btn-pause" class="icon-btn glass" type="button" data-i18n-title="pause" title="Пауза">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+    </button>
+    <button id="btn-inv" class="icon-btn glass" type="button" data-i18n-title="inventory" title="Инвентарь">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2"/><rect x="9" y="4" width="6" height="4" rx="1"/></svg>
+    </button>
+  </div>
+
+  <div id="panel" class="panel glass" hidden>
+    <div class="panel-head">
+      <b data-i18n="inventory"></b>
+      <span id="coins"></span>
+      <button id="panel-close" class="btn small" type="button" data-i18n="close"></button>
+    </div>
+    <div class="panel-body">
+      <div id="inv-grid" class="inv-grid"></div>
+      <div class="side">
+        <div id="shop" class="shop" hidden>
+          <div class="shop-head"><b id="shop-who"></b><span id="shop-hello"></span></div>
+          <div id="shop-list" class="list"></div>
+          <div class="shop-actions">
+            <button id="shop-sell" class="btn small" type="button" data-i18n="sell"></button>
+            <button id="shop-heal" class="btn small" type="button"></button>
+          </div>
+        </div>
+        <b class="side-title" data-i18n="crafting"></b>
+        <div id="craft-list" class="list"></div>
+      </div>
+    </div>
+    <div id="item-info" class="item-info"></div>
+  </div>
+
+  <div id="screens">
+    <section id="s-menu" class="screen glass" data-screen="menu">
+      <h1 class="logo">Sandbox<span>2D</span></h1>
+      <p class="tagline" data-i18n="tagline"></p>
+      <div class="col">
+        <button id="m-new" class="btn primary" type="button" data-i18n="newWorld"></button>
+        <button id="m-load" class="btn" type="button" data-i18n="load"></button>
+        <button id="m-settings" class="btn" type="button" data-i18n="settings"></button>
+        <button id="m-help" class="btn" type="button" data-i18n="controls"></button>
+      </div>
+      <p class="fan" data-i18n="fan"></p>
+    </section>
+
+    <section id="s-new" class="screen glass" data-screen="new" hidden>
+      <h2 data-i18n="newWorld"></h2>
+      <label><span data-i18n="worldName"></span><input id="n-name" maxlength="32" autocomplete="off"></label>
+      <label><span data-i18n="seed"></span><input id="n-seed" maxlength="24" autocomplete="off" data-i18n-placeholder="randomSeed"></label>
+      <label><span data-i18n="size"></span>
+        <select id="n-size"><option value="normal" data-i18n="normal"></option><option value="small" data-i18n="small"></option></select>
+      </label>
+      <div class="row">
+        <button id="n-back" class="btn" type="button" data-i18n="back"></button>
+        <button id="n-create" class="btn primary" type="button" data-i18n="create"></button>
+      </div>
+    </section>
+
+    <section id="s-load" class="screen glass" data-screen="load" hidden>
+      <h2 data-i18n="load"></h2>
+      <div id="l-list" class="slots"></div>
+      <div class="row"><button id="l-back" class="btn" type="button" data-i18n="back"></button></div>
+    </section>
+
+    <section id="s-settings" class="screen glass wide" data-screen="settings" hidden>
+      <h2 data-i18n="settings"></h2>
+      <div class="grid2">
+        <label><span data-i18n="theme"></span><select id="o-theme"></select></label>
+        <label><span data-i18n="lang"></span><select id="o-lang"><option value="ru">Русский</option><option value="en">English</option></select></label>
+        <label><span data-i18n="volume"></span><input id="o-volume" type="range" min="0" max="1" step="0.05"></label>
+        <label><span data-i18n="music"></span><input id="o-music" type="range" min="0" max="1" step="0.05"></label>
+        <label><span data-i18n="zoom"></span><input id="o-zoom" type="range" min="1" max="4" step="0.25"></label>
+        <label class="check"><input id="o-fps" type="checkbox"><span data-i18n="showFps"></span></label>
+      </div>
+      <h3 data-i18n="keys"></h3>
+      <div id="o-keys" class="keys"></div>
+      <div class="row">
+        <button id="o-reset" class="btn" type="button" data-i18n="resetKeys"></button>
+        <button id="o-back" class="btn primary" type="button" data-i18n="back"></button>
+      </div>
+    </section>
+
+    <section id="s-help" class="screen glass wide" data-screen="help" hidden>
+      <h2 data-i18n="controls"></h2>
+      <div id="h-keys" class="keys readonly"></div>
+      <p data-i18n="helpMouse"></p>
+      <p data-i18n="helpHotbar"></p>
+      <p data-i18n="helpLight"></p>
+      <p data-i18n="helpResidents"></p>
+      <p data-i18n="helpBosses"></p>
+      <div class="row"><button id="h-back" class="btn primary" type="button" data-i18n="back"></button></div>
+    </section>
+
+    <section id="s-pause" class="screen glass" data-screen="pause" hidden>
+      <h2 data-i18n="pause"></h2>
+      <div class="col">
+        <button id="p-resume" class="btn primary" type="button" data-i18n="resume"></button>
+        <button id="p-save" class="btn" type="button" data-i18n="save"></button>
+        <button id="p-settings" class="btn" type="button" data-i18n="settings"></button>
+        <button id="p-help" class="btn" type="button" data-i18n="controls"></button>
+        <button id="p-menu" class="btn" type="button" data-i18n="toMenu"></button>
+      </div>
+    </section>
+  </div>
+
+  <div id="error" class="screen glass" hidden></div>
+
+  <script src="vendor/pixi.min.js"></script>
+  <script src="js/core/noise.js"></script>
+  <script src="js/core/data.js"></script>
+  <script src="js/core/gen.js"></script>
+  <script src="js/core/world.js"></script>
+  <script src="js/core/light.js"></script>
+  <script src="js/core/liquid.js"></script>
+  <script src="js/core/physics.js"></script>
+  <script src="js/core/inventory.js"></script>
+  <script src="js/core/save.js"></script>
+  <script src="js/core/time.js"></script>
+  <script src="js/core/mobs.js"></script>
+  <script src="js/core/npc.js"></script>
+  <script src="js/core/game.js"></script>
+  <script src="js/sys/keys.js"></script>
+  <script src="js/sys/settings.js"></script>
+  <script src="js/sys/i18n.js"></script>
+  <script src="js/ui/textures.js"></script>
+  <script src="js/ui/audio.js"></script>
+  <script src="js/ui/render.js"></script>
+  <script src="js/ui/app.js"></script>
+</body>
+</html>
