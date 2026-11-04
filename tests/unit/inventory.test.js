@@ -28,6 +28,10 @@ test('положить и забрать: стопки до предела, ли
   assert.equal(Inv.count(inv, 'dirt'), 2997, 'неудачное «забрать» ничего не меняет');
   assert.equal(Inv.remove(inv, 'dirt', 1000), true);
   assert.equal(Inv.count(inv, 'dirt'), 1997);
+  const part = Inv.create(3);
+  Inv.add(part, 'stone', 500);
+  assert.equal(Inv.add(part, 'stone', 800), 0);
+  assert.deepEqual(part.slice(0, 2), [{ id: 'stone', n: 999 }, { id: 'stone', n: 301 }], 'стопка дополняется до предела');
   const tools = Inv.create(2);
   assert.equal(Inv.add(tools, 'iron_pick', 3), 1, 'инструменты по одному');
 });

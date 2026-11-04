@@ -139,7 +139,9 @@ test('закон: что бы ни ставили и ни копали, игро
     const b = game.player.body;
     const input = { left: r() < 0.3, right: r() < 0.3, jump: r() < 0.2, use: r() < 0.7, aimX: b.x + (r() - 0.5) * 8, aimY: b.y + (r() - 0.3) * 6 };
     Gm.step(game, input);
-    assert.ok(!P.overlaps(game.world, b), `шаг ${t}`);
+    let hit = false;
+    for (let cy = Math.floor(b.y + 1e-3); cy <= Math.floor(b.y + b.h - 1e-3); cy++) for (let cx = Math.floor(b.x + 1e-3); cx <= Math.floor(b.x + b.w - 1e-3); cx++) if (Wd.solidAt(game.world, cx, cy)) hit = true;
+    assert.ok(!hit, `шаг ${t}`);
   }
 });
 

@@ -30,6 +30,10 @@ test('RLE и base64 туда-обратно на случайных байтах
     assert.deepEqual(S.unb64(S.b64(bytes)), bytes);
     assert.deepEqual(S.unrle(S.rle(bytes), len), bytes);
   }
+  const long = new Uint8Array(3000).fill(9);
+  long[1500] = 4;
+  assert.deepEqual(S.unrle(S.rle(long), 3000), long, 'ряд длиннее 255');
+  assert.ok(S.rle(long).every((v, i) => i % 2 === 1 || v > 0), 'длина ряда не обнуляется');
   assert.equal(S.unb64('abc'), null);
   assert.equal(S.unb64('ab!d'), null);
   assert.equal(S.unb64('abпd'), null);

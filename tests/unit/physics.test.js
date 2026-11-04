@@ -11,6 +11,14 @@ const Lq = core('liquid');
 const { B, L } = core('data');
 const DT = 1 / 60;
 
+// своя проверка пересечения, независимая от физики: углы тела по всем клеткам
+function inside(world, b) {
+  for (let cy = Math.floor(b.y + 1e-3); cy <= Math.floor(b.y + b.h - 1e-3); cy++) {
+    for (let cx = Math.floor(b.x + 1e-3); cx <= Math.floor(b.x + b.w - 1e-3); cx++) if (Wd.solidAt(world, cx, cy)) return true;
+  }
+  return false;
+}
+
 test('тело падает на землю и стоит на ней', () => {
   const world = flatWorld(64, 64, 40);
   const b = P.body(10, 20, 0.8, 1.8);
@@ -18,6 +26,7 @@ test('тело падает на землю и стоит на ней', () => {
   for (let i = 0; i < 120; i++) landed = Math.max(landed, P.step(world, b, {}, DT));
   assert.ok(b.onGround);
   assert.ok(Math.abs(b.y + b.h - 40) < 0.01, `низ ${b.y + b.h}`);
+  assert.ok(!inside(world, b));
   assert.ok(!P.overlaps(world, b));
   assert.ok(landed > 15, `высота падения ${landed}`);
 });
@@ -63,7 +72,7 @@ test('закон: при любых нажатиях тело не застре�
     for (let t = 0; t < 1200; t++) {
       if (t % 12 === 0) input = { left: r() < 0.4, right: r() < 0.4, jump: r() < 0.3 };
       P.step(world, b, input, DT * (0.5 + r()));
-      assert.ok(!P.overlaps(world, b), `зерно ${seed}, шаг ${t}: (${b.x.toFixed(3)}, ${b.y.toFixed(3)})`);
+      assert.ok(!inside(world, b), `зерно ${seed}, шаг ${t}: (${b.x.toFixed(3)}, ${b.y.toFixed(3)})`);
     }
   }
 });
