@@ -19,6 +19,7 @@
     slot: -1,
     render: null,
     keys: new Set(),
+    touch: { left: false, right: false, jump: false },
     mouse: { x: 0, y: 0, left: false, right: false, inside: false },
     panelPick: -1,
     shopKind: null,
@@ -495,9 +496,9 @@
     const playing = app.overlay === 'playing';
     const aim = app.mouse.inside ? app.render.toWorld(app.mouse.x, app.mouse.y) : null;
     return {
-      left: playing && down('left'),
-      right: playing && down('right'),
-      jump: playing && down('jump'),
+      left: playing && (down('left') || app.touch.left),
+      right: playing && (down('right') || app.touch.right),
+      jump: playing && (down('jump') || app.touch.jump),
       use: playing && app.mouse.left && !!aim,
       aimX: aim ? aim[0] : undefined,
       aimY: aim ? aim[1] : undefined,
@@ -573,6 +574,11 @@
     }, { passive: true });
     view.addEventListener('touchmove', (e) => { const tt = e.touches[0]; app.mouse.x = tt.clientX; app.mouse.y = tt.clientY; }, { passive: true });
     view.addEventListener('touchend', () => { app.mouse.left = false; }, { passive: true });
+    for (const b of document.querySelectorAll('[data-touch]')) {
+      const set = (v) => (e) => { e.preventDefault(); app.touch[b.dataset.touch] = v; b.classList.toggle('on', v); };
+      b.addEventListener('pointerdown', set(true));
+      for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) b.addEventListener(ev, set(false));
+    }
   }
 
   function bindUi() {

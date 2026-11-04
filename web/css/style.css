@@ -102,6 +102,17 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
 #btn-pause { right: 12px; }
 #btn-inv { right: 60px; }
 
+/* кнопки касания: только там, где нет мыши */
+.touch { display: none; }
+@media (pointer: coarse) {
+  .touch { display: block; }
+  .tbtn { position: absolute; bottom: 70px; width: 56px; height: 56px; font-size: 22px; color: var(--text); pointer-events: auto; touch-action: none; }
+  .tbtn[data-touch="left"] { left: 12px; }
+  .tbtn[data-touch="right"] { left: 76px; }
+  .tbtn.jump { right: 12px; }
+  .tbtn.on { background: rgb(var(--accent-rgb) / 0.45); }
+}
+
 /* ---------- инвентарь и крафт ---------- */
 .panel { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(860px, calc(100% - 24px)); max-height: calc(100% - 24px); display: flex; flex-direction: column; padding: 14px; gap: 10px; z-index: 5; }
 .panel-head { display: flex; align-items: center; gap: 12px; }

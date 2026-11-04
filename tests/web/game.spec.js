@@ -225,3 +225,19 @@ test('ночь: враги рождаются в темноте, у факело
   await page.waitForTimeout(300);
   await page.screenshot({ path: path.join(SHOTS, 'boss.png') });
 });
+
+test('телефон: кнопки касания видны и двигают игрока', async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 760 }, hasTouch: true, isMobile: true });
+  const page = await ctx.newPage();
+  await open(page);
+  await play(page);
+  await expect(page.locator('[data-touch="right"]')).toBeVisible();
+  const x0 = (await player(page)).x;
+  const btn = await page.locator('[data-touch="right"]').boundingBox();
+  await page.dispatchEvent('[data-touch="right"]', 'pointerdown');
+  await page.waitForTimeout(600);
+  await page.dispatchEvent('[data-touch="right"]', 'pointerup');
+  expect((await player(page)).x).toBeGreaterThan(x0 + 1);
+  expect(btn.width).toBeGreaterThan(40);
+  await ctx.close();
+});
