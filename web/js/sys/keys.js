@@ -1,10 +1,13 @@
 // Клавиши: действия, раскладка по умолчанию, переназначение без повторов, разбор из
 // хранилища. У каждого действия две клавиши (вторая может быть пустой).
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   else (root.SB = root.SB || {}).Keys = api;
 })(typeof self !== 'undefined' ? self : this, function () {
+/* c8 ignore stop */
   'use strict';
   const ACTIONS = Object.freeze(['left', 'right', 'jump', 'inventory', 'talk', 'zoomIn', 'zoomOut', 'map']);
   const DEFAULTS = Object.freeze({

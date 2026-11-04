@@ -1,10 +1,13 @@
 // Шум и случайность по зерну: одни и те же (зерно, x, y) всегда дают одно и то же число.
 // Работает и в браузере (SB.Noise), и в node (require) - законы проверяют тот же код.
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   else (root.SB = root.SB || {}).Noise = api;
 })(typeof self !== 'undefined' ? self : this, function () {
+/* c8 ignore stop */
   'use strict';
 
   function hash(seed, x, y) {

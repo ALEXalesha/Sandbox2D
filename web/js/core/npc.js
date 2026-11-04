@@ -2,6 +2,8 @@
 // торговец - когда у игрока набралось 10 монет, знахарка - после торговца и 10 побед.
 // Живут у своего костра; убрали костёр - житель уходит. Торговля честная: монеты меняются
 // ровно на цену, предмет кладётся только если есть место.
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
   const api = factory(
@@ -15,6 +17,7 @@
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).Npc = api;
 })(typeof self !== 'undefined' ? self : this, function (Wd, P, Inv, D, Lt, T) {
+/* c8 ignore stop */
   'use strict';
   const KINDS = Object.freeze(['trader', 'healer']);
   const HOME_LIGHT = 12;

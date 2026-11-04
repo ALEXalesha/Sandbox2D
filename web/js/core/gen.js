@@ -3,12 +3,15 @@
 //
 // Сверху вниз: небо, холмы (лес, пустыня, снега), земля, камень с пещерами, рудами и
 // озёрами, глубокие пещеры с лавой, внизу подземный ад из пепла с лавовыми озёрами.
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const api = factory(typeof module === 'object' && module.exports ? require('./noise.js') : root.SB.Noise,
     typeof module === 'object' && module.exports ? require('./data.js') : root.SB.Data);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else (root.SB = root.SB || {}).Gen = api;
 })(typeof self !== 'undefined' ? self : this, function (N, D) {
+/* c8 ignore stop */
   'use strict';
   const { B, W, L } = D;
   const CH = 32;

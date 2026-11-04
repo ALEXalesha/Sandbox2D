@@ -1,12 +1,15 @@
 // Мир чанками 32 x 32. Чанк создаётся генератором при первом обращении; изменённые чанки
 // помечаются dirty - только они попадают в сохранение. Всё, что за краем мира, - коренная
 // порода (блок 255 в таблицах solid/opaque).
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
   const api = factory(req ? require('./gen.js') : root.SB.Gen, req ? require('./data.js') : root.SB.Data);
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).World = api;
 })(typeof self !== 'undefined' ? self : this, function (G, D) {
+/* c8 ignore stop */
   'use strict';
   const CH = G.CH;
   const OUT = 255;

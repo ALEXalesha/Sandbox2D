@@ -1,0 +1,30 @@
+# Проверки на GitHub: законы ядра с покрытием по ветвям, законы страницы в headless Chromium
+# и законы приложения на Electron (окно невидимо, через xvfb).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Законы
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+      - name: Зависимости
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Законы ядра и покрытие по ветвям (ядро >= 90 %, без окон >= 80 %)
+        run: npm run cover
+      - name: Страница в headless Chromium
+        run: npx playwright test --workers=1
+      - name: Приложение на Electron
+        run: xvfb-run -a npm run test:app

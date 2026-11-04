@@ -1,12 +1,15 @@
 // Настройки и хранилище: тема (5 тем как в Paint Pro), язык, громкость, масштаб, клавиши;
 // три ячейки миров. Хранилище - любой объект с getItem/setItem/removeItem (localStorage в
 // браузере, подделка в законах); ошибки хранилища не роняют игру.
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
   const api = factory(req ? require('./keys.js') : root.SB.Keys);
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).Settings = api;
 })(typeof self !== 'undefined' ? self : this, function (K) {
+/* c8 ignore stop */
   'use strict';
   const THEMES = Object.freeze(['glass', 'formal', 'light', 'night', 'warm']);
   const LANGS = Object.freeze(['ru', 'en']);

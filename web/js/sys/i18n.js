@@ -1,10 +1,13 @@
 // Перевод: русский и английский. t(lang, key, params) - строка с подстановкой {name}.
 // Имена предметов - item.<id>, врагов - mob.<kind>, жителей - npc.<kind>.
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   else (root.SB = root.SB || {}).I18n = api;
 })(typeof self !== 'undefined' ? self : this, function () {
+/* c8 ignore stop */
   'use strict';
   const RU = {
     title: 'Sandbox2D',

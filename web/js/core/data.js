@@ -2,11 +2,14 @@
 //
 // Клетка мира хранит три байта: блок (передний слой), стена (задний слой) и жидкость
 // (тип << 4 | объём 0..8). Блок с solid=false не мешает ходить (факел, ствол, листва).
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   else (root.SB = root.SB || {}).Data = api;
 })(typeof self !== 'undefined' ? self : this, function () {
+/* c8 ignore stop */
   'use strict';
 
   const B = Object.freeze({

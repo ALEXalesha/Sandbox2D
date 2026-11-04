@@ -3,6 +3,8 @@
 // Один шаг - STEP секунды; окно только передаёт ввод и рисует состояние.
 //
 // Ввод: { left, right, jump, use, aimX, aimY } - aim в клетках мира (дробные).
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
   const m = (n) => (req ? require('./' + n + '.js') : null);
@@ -15,6 +17,7 @@
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).Game = api;
 })(typeof self !== 'undefined' ? self : this, function (N, D, G, Wd, Lt, Lq, P, Inv, T, M, Npc, Sv) {
+/* c8 ignore stop */
   'use strict';
   const { B } = D;
   const STEP = 1 / 60;

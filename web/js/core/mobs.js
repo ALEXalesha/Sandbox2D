@@ -4,6 +4,8 @@
 // Виды: капля (поверхность, прыгает), тень (ночью на поверхности, летает сквозь блоки),
 // крот (пещеры, ходит и прыгает), бес (подземный ад, летает). Боссы: Ночной колосс (маяк
 // ночью) и Сердце магмы (обсидиановый ключ в аду).
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
   const api = factory(
@@ -16,6 +18,7 @@
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).Mobs = api;
 })(typeof self !== 'undefined' ? self : this, function (Wd, P, Lt, G, T) {
+/* c8 ignore stop */
   'use strict';
   const DARK = 5;
   const BURN = 12;

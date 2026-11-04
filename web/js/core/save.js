@@ -1,12 +1,15 @@
 // Сохранение мира: только изменённые чанки (три слоя подряд, сжатые RLE и base64), игрок,
 // инвентарь, время, жители и побеждённые боссы. Разбор не доверяет входу: испорченная строка
 // даёт null, а не сломанную игру.
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
   const api = factory(req ? require('./world.js') : root.SB.World, req ? require('./inventory.js') : root.SB.Inv);
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).Save = api;
 })(typeof self !== 'undefined' ? self : this, function (Wd, Inv) {
+/* c8 ignore stop */
   'use strict';
   const VERSION = 1;
   const CELLS = Wd.CH * Wd.CH;

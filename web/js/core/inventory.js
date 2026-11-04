@@ -1,11 +1,14 @@
 // Инвентарь и крафт. Ячейка - { id, n } или null. Крафт или делается целиком, или не меняет
 // ничего: ингредиенты списываются ровно по рецепту, результат кладётся только если есть место.
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
   const api = factory(req ? require('./data.js') : root.SB.Data, req ? require('./world.js') : root.SB.World);
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).Inv = api;
 })(typeof self !== 'undefined' ? self : this, function (D, Wd) {
+/* c8 ignore stop */
   'use strict';
   const SIZE = 40;
   const HOTBAR = 10;

@@ -4,12 +4,15 @@
 //
 // Шаг в воздухе гасит 1, в жидкости 2, в непрозрачном блоке 3: свет источника силы L никогда
 // не уходит дальше L клеток (по сумме |dx| + |dy|).
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
   const api = factory(req ? require('./world.js') : root.SB.World, req ? require('./data.js') : root.SB.Data);
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).Light = api;
 })(typeof self !== 'undefined' ? self : this, function (Wd, D) {
+/* c8 ignore stop */
   'use strict';
   const MAX = 15;
   const MARGIN = MAX;

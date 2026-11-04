@@ -1,10 +1,13 @@
 // День и ночь. Время суток t в [0, 1): 0 - рассвет (6:00), 0.5 - закат (18:00).
 // Полные сутки - DAY_LEN секунд игры.
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   else (root.SB = root.SB || {}).Time = api;
 })(typeof self !== 'undefined' ? self : this, function () {
+/* c8 ignore stop */
   'use strict';
   const DAY_LEN = 720;
   const NIGHT_LIGHT = 0.15;

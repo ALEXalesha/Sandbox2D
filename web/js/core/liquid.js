@@ -5,12 +5,15 @@
 //   - лава, которая коснулась воды, становится обсидианом; уходит вся лава клетки и столько же
 //     воды у соседа (сколько у него есть) - consumed.
 // За краем прямоугольника - стена: жидкость не утекает из обсчитанной области.
+// обёртка «браузер или node»: ветку браузера проверяют законы страницы
+/* c8 ignore start */
 (function (root, factory) {
   const req = typeof module === 'object' && module.exports;
   const api = factory(req ? require('./world.js') : root.SB.World, req ? require('./data.js') : root.SB.Data);
   if (req) module.exports = api;
   else (root.SB = root.SB || {}).Liquid = api;
 })(typeof self !== 'undefined' ? self : this, function (Wd, D) {
+/* c8 ignore stop */
   'use strict';
   const { B, L } = D;
   const FULL = L.FULL;
