@@ -12,6 +12,7 @@
   let store;
   try { store = root.localStorage; void store.length; } catch (e) { store = { getItem: () => null, setItem: () => {}, removeItem: () => {} }; }
 
+  let waitingKey = null;
   const app = {
     settings: St.load(store),
     overlay: 'menu',
@@ -71,6 +72,7 @@
   // ---------- экраны ----------
 
   function show(name) {
+    waitingKey = null;
     app.overlay = name;
     for (const s of document.querySelectorAll('.screen[data-screen]')) s.hidden = s.dataset.screen !== name;
     const inGame = !!app.game && name !== 'menu' && name !== 'new' && name !== 'load';
@@ -101,7 +103,6 @@
     buildKeys($('o-keys'), true);
   }
 
-  let waitingKey = null;
   function buildKeys(host, editable) {
     host.innerHTML = '';
     for (const a of K.ACTIONS) {
@@ -193,7 +194,7 @@
   function loadSlot(slot) {
     const text = St.loadWorld(store, slot);
     const game = text && Gm.fromSave(text);
-    if (!game) { toast(t('noSpace')); return null; }
+    if (!game) { toast(t('loadFailed')); return null; }
     startGame(game, slot);
     return game;
   }
@@ -401,6 +402,17 @@
     return best;
   }
 
+  // нажатие прямо на жителя рядом - разговор, а не удар
+  function talkAt(aim) {
+    const g = app.game;
+    const res = residentNear(aim[0], aim[1], 1.3);
+    if (!res) return false;
+    const [px, py] = Gm.center(g.player.body);
+    if (Math.hypot(res.x + res.w / 2 - px, res.y + res.h / 2 - py) > 7) return false;
+    openPanel(res.kind);
+    return true;
+  }
+
   function talk(aim) {
     const g = app.game;
     const [px, py] = Gm.center(g.player.body);
@@ -557,6 +569,7 @@
       app.mouse.inside = true;
       if (app.overlay !== 'playing') return;
       if (e.button === 0) {
+        if (talkAt(app.render.toWorld(e.clientX, e.clientY))) return;
         app.mouse.left = true;
         const res = Gm.use(app.game, Object.assign(input(), { use: false }), 0);
         if (res) useResult(res);
@@ -572,7 +585,9 @@
     // касание: один палец - использовать предмет в точке
     view.addEventListener('touchstart', (e) => {
       const tt = e.touches[0];
-      app.mouse.x = tt.clientX; app.mouse.y = tt.clientY; app.mouse.inside = true; app.mouse.left = true;
+      app.mouse.x = tt.clientX; app.mouse.y = tt.clientY; app.mouse.inside = true;
+      if (app.overlay === 'playing' && talkAt(app.render.toWorld(tt.clientX, tt.clientY))) return;
+      app.mouse.left = true;
     }, { passive: true });
     view.addEventListener('touchmove', (e) => { const tt = e.touches[0]; app.mouse.x = tt.clientX; app.mouse.y = tt.clientY; }, { passive: true });
     view.addEventListener('touchend', () => { app.mouse.left = false; }, { passive: true });

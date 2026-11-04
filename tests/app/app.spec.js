@@ -92,13 +92,14 @@ test(`${RUNS} запусков мира подряд: память не раст
     for (let i = 0; i < RUNS; i++) {
       await win.evaluate((i) => {
         const A = window.Sandbox2D;
-        A.newWorld({ name: 'Run ' + i, seed: 1000 + i, size: 'small', spawning: true });
+        if (!A.newWorld({ name: 'Run ' + i, seed: 1000 + i, size: 'small', spawning: true })) throw new Error('мир не создан на запуске ' + i);
         A.game.time = 0.7;
         A.game.player.invuln = 1e9;
         for (let k = 0; k < 40; k++) A.step(15, { right: k % 4 < 2, left: k % 4 >= 2, jump: k % 3 === 0 });
       }, i);
       await win.waitForTimeout(400);
-      await win.evaluate(() => window.Sandbox2D.toMenu());
+      // ячеек три: мир после прогона удаляется, иначе с четвёртого запуска новый мир не создаётся
+      await win.evaluate(() => { const A = window.Sandbox2D; const slot = A.slot; A.toMenu(); window.SB.Settings.deleteWorld(localStorage, slot); });
       await win.waitForTimeout(150);
       const m = await win.evaluate(() => { if (window.gc) { window.gc(); window.gc(); } return performance.memory ? performance.memory.usedJSHeapSize : 0; });
       heap.push(m / 1048576);

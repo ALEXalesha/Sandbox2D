@@ -204,13 +204,22 @@ test('ночь: враги рождаются в темноте, у факело
   const info = await sb(page, () => {
     const A = window.Sandbox2D;
     const g = A.game;
+    const { World: Wd, Data: D, Light: Lt, Mobs: M } = window.SB;
+    // справа от игрока ряд факелов, слева темно
+    const b = g.player.body;
+    const px = Math.floor(b.x);
+    for (let x = px + 20; x < px + 70; x += 6) { const y = Wd.groundY(g.world, x) - 1; if (y > 0) { Wd.setWall(g.world, x, y, D.W.PLANK); Wd.set(g.world, x, y, D.B.TORCH); } }
     g.time = 0.7;
     g.player.invuln = 1e9;
-    for (let i = 0; i < 60 * 40; i++) window.SB.Game.step(g, {});
-    const Lt = window.SB.Light;
-    return { n: g.stats.kills + g.mobs.length, lit: g.mobs.filter((m) => Lt.at(g.light, Math.floor(m.x), Math.floor(m.y)) >= 12 && !window.SB.Mobs.TYPES[m.kind].boss).length };
+    const born = [];
+    for (let i = 0; i < 60 * 40; i++) {
+      window.SB.Game.step(g, {});
+      for (const m of g.mobs) if (!m.seenAt) { m.seenAt = 1; born.push(Lt.at(g.light, Math.floor(m.x + m.w / 2), Math.floor(m.y + m.h - 0.5))); }
+    }
+    return { n: born.length, lit: born.filter((l) => l >= M.DARK).length };
   });
   expect(info.n).toBeGreaterThan(0);
+  expect(info.lit).toBe(0);
   await sb(page, () => {
     const g = window.Sandbox2D.game;
     g.inv[0] = { id: 'beacon', n: 1 };
@@ -266,4 +275,38 @@ test('все три ячейки заняты: новый мир не созда
   await expect(page.locator('.toast').last()).toContainText('заняты');
   const names = await sb(page, () => window.SB.Settings.listWorlds(localStorage).map((w) => w.name));
   expect(names).toEqual(['Мир 0', 'Мир 1', 'Мир 2']);
+});
+
+test('переназначение без нажатия клавиши: уход с экрана отменяет ожидание, E открывает инвентарь', async ({ page }) => {
+  await open(page);
+  await page.click('#m-settings');
+  await page.locator('#o-keys .key-row').nth(0).locator('.btn').first().click();
+  await page.click('#o-back');
+  await play(page);
+  await page.keyboard.press('KeyE');
+  await expect(page.locator('#panel')).toBeVisible();
+  const keys = await sb(page, () => window.Sandbox2D.settings.keys);
+  expect(keys.left).toEqual(['KeyA', 'ArrowLeft']);
+  expect(keys.inventory).toEqual(['KeyE', 'KeyI']);
+});
+
+test('телефон: касание жителя открывает лавку', async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 760 }, hasTouch: true, isMobile: true });
+  const page = await ctx.newPage();
+  await open(page);
+  await play(page);
+  const at = await sb(page, () => {
+    const g = window.Sandbox2D.game;
+    const b = g.player.body;
+    const r = window.SB.Npc.make('trader', [Math.floor(b.x) + 2, Math.round(b.y + b.h) - 1]);
+    r.y = b.y;
+    g.residents.push(r);
+    window.Sandbox2D.step(1);
+    return window.Sandbox2D.render.toScreen(r.x + r.w / 2, r.y + r.h / 2);
+  });
+  await page.waitForTimeout(200);
+  await page.touchscreen.tap(at[0], at[1]);
+  await expect(page.locator('#shop')).toBeVisible();
+  expect(await sb(page, () => window.Sandbox2D.overlay)).toBe('panel');
+  await ctx.close();
 });

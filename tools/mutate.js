@@ -72,9 +72,16 @@ const MUTANTS = [
   { id: 'numpad-is-slot', law: 'клавиша работает как назначенное действие', file: 'js/sys/keys.js', from: "const m = /^Digit(\\d)$/.exec(code || '');", to: "const m = /^(?:Digit|Numpad)(\\d)$/.exec(code || '');", unit: 'цифрового блока' },
   { id: 'slots-overwrite', law: 'старый мир молча не затирается', file: 'js/sys/settings.js', from: '    return empty ? empty.slot : -1;', to: '    return empty ? empty.slot : 0;', unit: 'ячейки заняты|ячейки миров' },
   { id: 'web-click-wrong-zoom', law: 'клик попадает в клетку под указателем', file: 'js/ui/render.js', from: '      const s = TS * (r.zoomUsed || r.zoom);\n      return [(sx', to: '      const s = TS * r.zoom;\n      return [(sx', web: 'большое окно' },
+  // находки второго обзора
+  { id: 'resident-unknown-kind', law: 'житель неизвестного вида не появляется', file: 'js/core/game.js', from: 'game.residents = s.residents.filter((r) => Npc.KINDS.includes(r.kind) && Wd.get', to: 'game.residents = s.residents.filter((r) => Wd.get', unit: 'неизвестного вида' },
+  { id: 'shade-unstuck', law: 'тень летает сквозь блоки', file: 'js/core/game.js', from: 'if (!(b.kind && M.TYPES[b.kind] && M.TYPES[b.kind].fly)) P.unstick(game.world, b);', to: 'P.unstick(game.world, b);', unit: 'тень летает' },
+  { id: 'mine-outside-world', law: 'за краем мира копать нечего', file: 'js/core/game.js', from: "    if (!Wd.inside(world, x, y)) { p.mining = null; return 'outside'; }\n", to: '', unit: 'у края мира' },
+  { id: 'colossus-no-phase-two', law: 'колосс во второй фазе быстрее и злее', file: 'js/core/mobs.js', from: 'if (m.hp < m.maxHp / 2) m.phase = 2;', to: 'if (false) m.phase = 2;', unit: 'второй фазе' },
+  { id: 'web-rebind-stuck', law: 'уход с экрана отменяет переназначение', file: 'js/ui/app.js', from: '  function show(name) {\n    waitingKey = null;', to: '  function show(name) {', web: 'переназначение без' },
+  { id: 'web-touch-no-talk', law: 'касание жителя открывает лавку', file: 'js/ui/app.js', from: '    const res = residentNear(aim[0], aim[1], 1.3);', to: '    const res = null;', web: 'касание жителя' },
   // страница
   { id: 'web-theme-sticks', law: 'темы переключаются', file: 'js/ui/app.js', from: "    if (th === 'glass') document.documentElement.removeAttribute('data-theme');\n    else", to: '    ', web: 'снимки тем' },
-  { id: 'web-pointer-lock', law: 'захвата указателя нет', file: 'js/ui/app.js', from: "      if (e.button === 0) {\n        app.mouse.left = true;", to: "      if (e.button === 0) {\n        view.requestPointerLock();\n        app.mouse.left = true;", web: 'мышь:' },
+  { id: 'web-pointer-lock', law: 'захвата указателя нет', file: 'js/ui/app.js', from: "      if (e.button === 0) {\n        if (talkAt(", to: "      if (e.button === 0) {\n        view.requestPointerLock();\n        if (talkAt(", web: 'мышь:' },
   { id: 'web-narrow-overflow', law: 'узкое окно без прокрутки', file: 'css/style.css', from: '.screen { pointer-events: auto; width: min(420px, 100%);', to: '.screen { pointer-events: auto; width: 420px;', web: 'узкое окно' },
 ];
 
@@ -94,7 +101,8 @@ function runUnit(dir, pattern) {
   if (pattern) args.push('--test-name-pattern=' + pattern);
   const r = spawnSync(process.execPath, [...args, ...files], { cwd: ROOT, env: { ...process.env, SB_WEB: dir }, encoding: 'utf8' });
   const pass = /# pass (\d+)/.exec(r.stdout || '');
-  return { ok: r.status === 0, passed: pass ? +pass[1] : 0 };
+  const total = /# tests (\d+)/.exec(r.stdout || '');
+  return { ok: r.status === 0, passed: pass ? +pass[1] : 0, ran: total ? +total[1] : 0 };
 }
 
 function runWeb(dir, pattern) {
@@ -126,9 +134,10 @@ function main() {
     if (n !== 1) { console.log(`?? ${m.id}: строка встречается ${n} раз - мутант устарел`); survived.push(m.id); continue; }
     fs.writeFileSync(file, orig.replace(m.from, m.to));
     const r = m.unit ? runUnit(dir, m.unit) : runWeb(dir, m.web);
-    const ran = m.unit ? r.passed : 1;
+    const ran = m.unit ? r.ran : 1;
     fs.writeFileSync(file, orig);
-    const killed = !r.ok && ran >= 0;
+    // убит, только если закон действительно запускался и упал
+    const killed = !r.ok && ran > 0;
     console.log(`${killed ? 'убит  ' : 'ЖИВ   '} ${m.id.padEnd(26)} закон: ${m.law}`);
     if (!killed) survived.push(m.id);
   }

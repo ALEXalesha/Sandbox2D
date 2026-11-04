@@ -252,6 +252,7 @@
   function mine(game, x, y, pick, dt) {
     const world = game.world;
     const p = game.player;
+    if (!Wd.inside(world, x, y)) { p.mining = null; return 'outside'; }
     if (!inReach(game, x, y)) { p.mining = null; return 'reach'; }
     const id = Wd.get(world, x, y);
     const wall = id === B.AIR;
@@ -432,7 +433,8 @@
       Lq.step(game.world, Math.floor(cx) - LIQ_AREA.x, Math.floor(cy) - LIQ_AREA.y, LIQ_AREA.x * 2, LIQ_AREA.y * 2, game.tick / 3, game.liq);
       for (const [x, y] of game.liq.obsidian.slice(before)) emit(game, { type: 'obsidian', x, y });
       if (game.liq.obsidian.length > 100) game.liq.obsidian.length = 0;
-      for (const b of bodies(game)) P.unstick(game.world, b);
+      // летающие враги проходят сквозь блоки - их не выталкиваем
+      for (const b of bodies(game)) if (!(b.kind && M.TYPES[b.kind] && M.TYPES[b.kind].fly)) P.unstick(game.world, b);
     }
     if (game.tick % 6 === 0) relight(game);
     if (game.spawning && game.tick % 60 === 0) M.trySpawn(game);
@@ -491,7 +493,7 @@
       for (let i = 0; i < c.fg.length; i++) if (c.fg[i] === B.CAMPFIRE) game.campfires.push([c.cx * 32 + (i & 31), c.cy * 32 + (i >> 5)]);
     }
     relight(game);
-    game.residents = s.residents.filter((r) => Wd.get(game.world, r.home[0], r.home[1]) === B.CAMPFIRE).map((r) => Npc.make(r.kind, r.home));
+    game.residents = s.residents.filter((r) => Npc.KINDS.includes(r.kind) && Wd.get(game.world, r.home[0], r.home[1]) === B.CAMPFIRE).map((r) => Npc.make(r.kind, r.home));
     return game;
   }
 

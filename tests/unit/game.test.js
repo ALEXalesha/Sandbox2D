@@ -474,10 +474,11 @@ test('враги живут: капля прыгает к игроку, крот
   game.mobs.push(...mobs);
   const d0 = mobs.map((m) => Math.abs(m.x - b.x));
   game.player.invuln = 1e9;
-  run(game, {}, 600);
+  let fired = 0;
+  for (let i = 0; i < 600; i++) { const n = game.projectiles.length; Gm.step(game, {}); if (game.projectiles.length > n) fired++; }
   for (const [i, m] of mobs.entries()) if (m.kind !== 'heart') assert.ok(Math.abs(m.x - b.x) < d0[i], m.kind);
   assert.ok(game.mobs.filter((m) => m.kind === 'imp').length >= 2, 'бесы от сердца');
-  assert.ok(game.projectiles.length > 0 || game.events.some((e) => e.type === 'hurt') || true);
+  assert.ok(fired >= 3, `выстрелов беса и сердца: ${fired}`);
   const c = M.summon(flat(), 'colossus');
   assert.equal(c.kind, 'colossus');
 });
@@ -501,11 +502,28 @@ test('колосс во второй фазе быстрее и злее', () =>
   const game = flat();
   game.time = 0.75;
   game.player.invuln = 1e9;
-  const c = M.summon(game, 'colossus');
-  c.hp = 100;
-  run(game, {}, 400);
-  assert.equal(c.phase, 2);
-  assert.ok(game.projectiles.length > 0 || game.events.filter((e) => e.type === 'hurt').length >= 0);
+  const shots = (hp) => {
+    const g = flat();
+    g.time = 0.75;
+    g.player.invuln = 1e9;
+    const c = M.summon(g, 'colossus');
+    c.hp = hp;
+    let n = 0;
+    let fastest = 0;
+    for (let i = 0; i < 600; i++) {
+      const before = g.projectiles.length;
+      Gm.step(g, {});
+      if (g.projectiles.length > before) n++;
+      fastest = Math.max(fastest, Math.hypot(c.vx, c.vy));
+    }
+    return { n, fastest, phase: c.phase };
+  };
+  const calm = shots(700);
+  const angry = shots(100);
+  assert.equal(calm.phase, 1);
+  assert.equal(angry.phase, 2);
+  assert.ok(angry.n > calm.n, `залпов: ${calm.n} -> ${angry.n}`);
+  assert.ok(angry.fastest > calm.fastest, `скорость: ${calm.fastest.toFixed(1)} -> ${angry.fastest.toFixed(1)}`);
 });
 
 test('факел в руке светит вокруг игрока, меч - нет', () => {
@@ -594,4 +612,37 @@ test('враг не рождается за краем карты света: т
   assert.equal(Wd.get(game.world, x, 39), B.AIR);
   assert.equal(M.kindAt(game, x, 39), null, 'ночью, но за картой света');
   assert.notEqual(M.kindAt(game, m.x0 + m.w - 3, 39), null, 'внутри карты ночью можно');
+});
+
+test('житель неизвестного вида из сохранения не появляется', () => {
+  const game = flat();
+  hold(game, 'campfire', 1);
+  Gm.place(game, 23, 39, 0);
+  const o = JSON.parse(Gm.toSave(game));
+  o.residents = [{ kind: 'ghost', home: [23, 39] }, { kind: 'trader', home: [23, 39] }];
+  const back = Gm.fromSave(JSON.stringify(o), { spawning: false });
+  assert.deepEqual(back.residents.map((r) => r.kind), ['trader']);
+});
+
+test('тень летает сквозь блоки: её не выталкивает из земли', () => {
+  const game = flat();
+  game.time = 0.75;
+  game.player.invuln = 1e9;
+  const m = M.make('shade', 30, 41);
+  game.mobs.push(m);
+  let pushed = 0;
+  for (let i = 0; i < 30; i++) {
+    const [x0, y0] = [m.x, m.y];
+    Gm.step(game, {});
+    if (Math.hypot(m.x - x0, m.y - y0) > 0.5) pushed++;
+  }
+  assert.equal(pushed, 0);
+});
+
+test('кирка у края мира: за краем копать нечего, игра не падает', () => {
+  const game = flat();
+  game.player.body.x = 0.6;
+  hold(game, 'stone_pick');
+  assert.equal(Gm.mine(game, -1, 39, D.ITEMS.stone_pick, 1), 'outside');
+  Gm.step(game, { use: true, aimX: -0.5, aimY: 39.5 });
 });
