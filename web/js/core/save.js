@@ -153,7 +153,7 @@
       inv: Inv.sanitize(o.inv),
       residents: Array.isArray(o.residents) ? o.residents.filter((r) => r && typeof r.kind === 'string' && Array.isArray(r.home)).map((r) => ({ kind: r.kind, home: [num(r.home[0], 0, W, 0), num(r.home[1], 0, H, 0)] })) : [],
       bosses: o.bosses && typeof o.bosses === 'object' ? { colossus: o.bosses.colossus === true, heart: o.bosses.heart === true } : {},
-      stats: o.stats && typeof o.stats === 'object' ? { kills: num(o.stats.kills, 0, 1e9, 0) } : { kills: 0 },
+      stats: o.stats && typeof o.stats === 'object' ? { kills: num(o.stats.kills, 0, 1e9, 0), coins: num(o.stats.coins, 0, 1e9, 0) } : { kills: 0, coins: 0 },
     };
   }
 

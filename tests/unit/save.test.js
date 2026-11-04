@@ -17,7 +17,7 @@ function state(world) {
   return {
     name: 'Тест', world, time: 0.4, day: 3,
     player: { x: 100.5, y: 60.25, hp: 80, maxHp: 120, shards: 1 },
-    inv, residents: [{ kind: 'trader', home: [100, 70] }], bosses: { colossus: true, heart: false }, stats: { kills: 7 },
+    inv, residents: [{ kind: 'trader', home: [100, 70] }], bosses: { colossus: true, heart: false }, stats: { kills: 7, coins: 0 },
   };
 }
 
@@ -60,7 +60,7 @@ test('сохранение туда-обратно: мир, игрок, инве
   assert.deepEqual(back.inv, st.inv);
   assert.deepEqual(back.residents, st.residents);
   assert.deepEqual(back.bosses, { colossus: true, heart: false });
-  assert.deepEqual(back.stats, { kills: 7 });
+  assert.deepEqual(back.stats, { kills: 7, coins: 0 });
   assert.equal(back.time, 0.4);
   assert.equal(back.day, 3);
   for (let x = 0; x < 320; x++) for (let y = 0; y < 192; y++) {
@@ -96,7 +96,7 @@ test('испорченное сохранение - null, а не падение
   assert.equal(odd.player.hp, 100);
   assert.deepEqual(odd.residents, [{ kind: 'trader', home: [1, 2] }]);
   assert.deepEqual(odd.bosses, {});
-  assert.deepEqual(odd.stats, { kills: 0 });
+  assert.deepEqual(odd.stats, { kills: 0, coins: 0 });
   const noRes = S.deserialize(JSON.stringify({ ...o, residents: 'x' }));
   assert.deepEqual(noRes.residents, []);
 });
