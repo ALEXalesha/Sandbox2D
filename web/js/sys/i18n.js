@@ -56,6 +56,7 @@
     'desc.pick': 'Сила {tier}, урон {damage}', 'desc.sword': 'Урон {damage}', 'desc.potion': '+50 здоровья, раз в 20 с',
     'desc.life_shard': '+20 к здоровью (до трёх)', 'desc.beacon': 'Зовёт Ночного колосса (только ночью)', 'desc.obsidian_key': 'Зовёт Сердце магмы (только в аду)',
     'desc.torch': 'Свет 14: здесь враги не родятся', 'desc.campfire': 'Свет 15, зовёт жителей',
+    'light.safe': 'Свет {n}: здесь враги не родятся', 'light.dark': 'Темно ({n}): здесь рождаются враги',
     fps: 'FPS {n}', loading: 'Загрузка…', webglError: 'Не удалось запустить WebGL',
   };
   const EN = {
@@ -105,6 +106,7 @@
     'desc.pick': 'Power {tier}, damage {damage}', 'desc.sword': 'Damage {damage}', 'desc.potion': '+50 health, once per 20 s',
     'desc.life_shard': '+20 max health (up to three)', 'desc.beacon': 'Calls the Night Colossus (night only)', 'desc.obsidian_key': 'Calls the Magma Heart (underworld only)',
     'desc.torch': 'Light 14: no monsters are born here', 'desc.campfire': 'Light 15, calls residents',
+    'light.safe': 'Light {n}: no monsters are born here', 'light.dark': 'Dark ({n}): monsters are born here',
     fps: 'FPS {n}', loading: 'Loading…', webglError: 'Could not start WebGL',
   };
   const DICT = Object.freeze({ ru: RU, en: EN });

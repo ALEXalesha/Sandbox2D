@@ -457,12 +457,17 @@
     const g = app.game;
     const p = g.player;
     const c = T.clock(g.time);
-    const sig = [Math.ceil(p.hp), p.maxHp, c.h, Math.floor(c.m / 10), g.day, Math.ceil(p.dead), app.settings.lang].join();
+    const [lx, ly] = Gm.center(p.body);
+    const lv = SB.Light.at(g.light, Math.floor(lx), Math.floor(ly + 0.5));
+    const sig = [Math.ceil(p.hp), p.maxHp, c.h, Math.floor(c.m / 10), g.day, Math.ceil(p.dead), app.settings.lang, lv].join();
     if (sig !== hudSig) {
       hudSig = sig;
       $('hp-bar').style.width = (100 * p.hp / p.maxHp) + '%';
       $('hp-text').textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
       $('clock').textContent = `${t('day', { n: g.day + 1 })} · ${String(c.h).padStart(2, '0')}:${String(c.m).padStart(2, '0')}`;
+      const el = $('light');
+      el.textContent = t(lv >= M.DARK ? 'light.safe' : 'light.dark', { n: lv });
+      el.classList.toggle('dark', lv < M.DARK);
       $('dead').hidden = !(p.dead > 0);
       $('dead-info').textContent = p.dead > 0 ? t('respawnIn', { n: Math.ceil(p.dead) }) : '';
     }

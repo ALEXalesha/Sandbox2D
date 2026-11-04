@@ -34,7 +34,8 @@
       r.lightTex = null;
       r.lightSprite = new PIXI.Sprite();
       r.cursor = new PIXI.Graphics();
-      r.world.addChild(r.chunkLayer, r.entityLayer, r.fxLayer, r.lightSprite, r.cursor);
+      r.bars = new PIXI.Graphics();
+      r.world.addChild(r.chunkLayer, r.entityLayer, r.fxLayer, r.lightSprite, r.bars, r.cursor);
       app.stage.addChild(r.bg, r.world);
       r.drawHills();
       r.ready = true;
@@ -413,7 +414,21 @@
       drawEntities(now);
       updateParticles(dt);
       drawCursor(aim);
+      drawBars();
     };
+
+    // полоски здоровья над ранеными врагами (кроме боссов - у них полоса сверху экрана)
+    function drawBars() {
+      const g = r.bars;
+      g.clear();
+      for (const m of r.game.mobs) {
+        if (m.hp >= m.maxHp || M.TYPES[m.kind].boss) continue;
+        const x = (m.x + m.w / 2) * TS - 8;
+        const y = m.y * TS - 5;
+        g.rect(x, y, 16, 3).fill({ color: 0x000000, alpha: 0.6 });
+        g.rect(x, y, 16 * Math.max(0, m.hp / m.maxHp), 3).fill({ color: 0xff5050 });
+      }
+    }
 
     function drawCursor(aim) {
       const c = r.cursor;
@@ -438,5 +453,4 @@
   }
 
   SB.Render = { create, TS };
-  void M;
 })(typeof self !== 'undefined' ? self : this);
