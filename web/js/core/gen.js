@@ -64,10 +64,10 @@
     const r = N.rand(seed, x, 211);
     if (biome === 'desert') {
       if (r > 0.45) return null;
-      return { kind: 'cactus', x, base: s, height: 2 + Math.floor(r * 6.7) };
+      return { kind: 'cactus', x, base: s, height: 2 + Math.floor(r * 6.7), seed };
     }
-    if (biome === 'snow') return { kind: 'pine', x, base: s, height: 7 + Math.floor(r * 5) };
-    return { kind: 'tree', x, base: s, height: 5 + Math.floor(r * 5) };
+    if (biome === 'snow') return { kind: 'pine', x, base: s, height: 7 + Math.floor(r * 5), seed };
+    return { kind: 'tree', x, base: s, height: 5 + Math.floor(r * 5), seed };
   }
 
   // блок растения в клетке (x, y) над землёй
@@ -78,10 +78,10 @@
       const dx = x - p.x;
       if (dx === 0 && y < p.base && y >= top) return p.kind === 'cactus' ? B.CACTUS : B.LOG;
       if (p.kind === 'tree') {
-        const dy = y - top;
-        if (dx !== 0 || y < top) {
-          if (dy >= -2 && dy <= 1 && Math.abs(dx) <= 2 && Math.abs(dx) + Math.abs(dy) <= 3) return B.LEAVES;
-        }
+        // круглая крона радиусом около 2.7 клетки, края рваные по зерну
+        const dy = y - top + 0.5;
+        const r2 = dx * dx + dy * dy * 1.2;
+        if ((dx !== 0 || y < top) && r2 <= 8.2 && (r2 <= 5 || N.rand(p.seed, x, y) < 0.55)) return B.LEAVES;
       } else if (p.kind === 'pine') {
         const dy = y - top;
         if (dy >= -1 && y < p.base - 2) {
