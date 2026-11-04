@@ -521,3 +521,21 @@ test('факел в руке светит вокруг игрока, меч - н
   assert.ok(Lt.at(game.light, Math.floor(cx), Math.floor(cy - 0.3)) >= 11);
   assert.ok(dim < 5);
 });
+
+test('сквозной: магмитовой киркой можно прокопаться от поверхности до подземного ада', () => {
+  const game = Gm.create({ seed: 4242, W: 320, H: 384, spawning: false });
+  game.inv.fill(null);
+  Inv.add(game.inv, 'magmite_pick', 1);
+  game.player.slot = 0;
+  game.player.invuln = 1e9;
+  const b = game.player.body;
+  const hell = game.world.dims.hellTop;
+  let t = 0;
+  for (; t < 60 * 240 && b.y < hell; t++) {
+    const cx = b.x + b.w / 2;
+    // копать под ногами, а если упёрлись сбоку - перед собой
+    Gm.step(game, { use: true, aimX: cx, aimY: b.y + b.h + 0.5, jump: false });
+    game.player.hp = game.player.maxHp;
+  }
+  assert.ok(b.y >= hell, `глубина ${b.y.toFixed(1)} из ${hell} за ${t} шагов`);
+});

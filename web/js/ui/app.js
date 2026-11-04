@@ -536,7 +536,7 @@
       const z = app.settings.zoom + (act === 'zoomIn' ? 0.5 : -0.5);
       app.settings.zoom = Math.max(St.ZOOM.min, Math.min(St.ZOOM.max, z));
       saveSettings();
-    } else if (act === 'map' && app.overlay === 'playing') show('help');
+    } else if (act === 'map' && app.overlay === 'playing') { app.backTo = 'playing'; show('help'); }
     if (act === 'jump' && app.overlay === 'playing' && app.game.player.body.onGround) SB.Audio.play({ type: 'jump' });
   }
 
