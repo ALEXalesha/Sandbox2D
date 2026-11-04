@@ -1,0 +1,29 @@
+{
+  "name": "sandbox2d",
+  "productName": "Sandbox2D",
+  "version": "0.1.0",
+  "description": "Sandbox2D: a 2D block sandbox in the browser - dig, build, light the dark; a fan game",
+  "author": "ALEXalesha",
+  "license": "MIT",
+  "private": true,
+  "main": "electron/main.js",
+  "homepage": "https://github.com/ALEXalesha/Sandbox2D",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test --test-concurrency=1 \"tests/unit/*.test.js\"",
+    "cover": "c8 --reporter=text-summary --reporter=text --all --src web/js --include \"web/js/core/**\" --include \"web/js/sys/**\" npm test && c8 check-coverage --branches 90 --include \"web/js/core/**\" && c8 check-coverage --branches 80 --include \"web/js/core/**\" --include \"web/js/sys/**\"",
+    "test:web": "playwright test --workers=1",
+    "test:app": "playwright test --config=playwright.app.config.js --workers=1",
+    "mutate": "node tools/mutate.js",
+    "screens": "node tools/screenshots.js",
+    "vendor": "node tools/build-vendor.js",
+    "dist": "electron-builder --win portable nsis --x64"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "c8": "11.0.0",
+    "electron": "43.0.0",
+    "electron-builder": "26.15.3",
+    "pixi.js": "8.6.6"
+  }
+}
