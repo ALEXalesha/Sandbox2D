@@ -375,6 +375,11 @@
       return [(sx - r.world.x) / s, (sy - r.world.y) / s];
     };
 
+    r.toScreen = function (x, y) {
+      const s = TS * (r.zoomUsed || r.zoom);
+      return [x * s + r.world.x, y * s + r.world.y];
+    };
+
     // наименьший масштаб, при котором экран целиком внутри карты света
     r.minZoom = function () {
       const A = SB.Game.AREA;

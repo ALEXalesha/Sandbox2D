@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="description" content="Sandbox2D: a 2D block sandbox where light rules - dig, build, light the dark; a fan game">
   <meta name="color-scheme" content="dark light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' data: blob:; worker-src 'self' blob:">
   <link rel="icon" href="favicon.png">
   <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/style.css">
@@ -133,6 +134,7 @@
   <div id="error" class="screen glass" hidden></div>
 
   <script src="vendor/pixi.min.js"></script>
+  <script src="vendor/pixi-unsafe-eval.min.js"></script>
   <script src="js/core/noise.js"></script>
   <script src="js/core/data.js"></script>
   <script src="js/core/gen.js"></script>

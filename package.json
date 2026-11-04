@@ -17,7 +17,8 @@
     "mutate": "node tools/mutate.js",
     "screens": "node tools/screenshots.js",
     "vendor": "node tools/build-vendor.js",
-    "dist": "electron-builder --win portable nsis --x64"
+    "dist": "electron-builder --win portable nsis --x64",
+    "icon": "node tools/make-icon.js"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
@@ -25,5 +26,56 @@
     "electron": "43.0.0",
     "electron-builder": "26.15.3",
     "pixi.js": "8.6.6"
+  },
+  "build": {
+    "appId": "com.alexalesha.sandbox2d",
+    "productName": "Sandbox2D",
+    "copyright": "Copyright (c) 2026 ALEXalesha",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**",
+      "web/**",
+      "assets/icon.ico",
+      "assets/icon.png",
+      "LICENSE",
+      "!**/*.map"
+    ],
+    "electronLanguages": [
+      "en-US",
+      "ru"
+    ],
+    "compression": "maximum",
+    "publish": null,
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "Sandbox2D-${version}-Portable.${ext}"
+    },
+    "nsis": {
+      "artifactName": "Sandbox2D-${version}-Setup.${ext}",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Sandbox2D"
+    }
   }
 }

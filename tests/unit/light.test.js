@@ -76,3 +76,13 @@ test('лава светится, кристалл тоже', () => {
   assert.equal(Lt.at(map, 10, 10), Lt.LAVA_LIGHT);
   assert.equal(Lt.at(map, 30, 30), 9);
 });
+
+test('добавочный источник (факел в руке) светит и тоже не дальше своего радиуса', () => {
+  const world = dark(64, 64);
+  const map = Lt.compute(world, 0, 0, 64, 64, 1, [[32.4, 32.9, 11], [-100, 5, 15]]);
+  assert.equal(Lt.at(map, 32, 32), 11);
+  assert.equal(Lt.at(map, 32 + 11, 32), 0);
+  assert.equal(Lt.at(map, 32 + 10, 32), 1);
+  const big = Lt.compute(world, 0, 0, 8, 8, 1, [[3, 3, 40]]);
+  assert.equal(Lt.at(big, 3, 3), Lt.MAX);
+});

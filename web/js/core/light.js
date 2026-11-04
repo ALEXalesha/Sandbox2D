@@ -41,8 +41,9 @@
     }
   }
 
-  // свет прямоугольника (x0, y0, w, h); источники ищутся и за краем, на MARGIN клеток
-  function compute(world, x0, y0, w, h, daylight) {
+  // свет прямоугольника (x0, y0, w, h); источники ищутся и за краем, на MARGIN клеток;
+  // sources - добавочные источники [[x, y, сила]] (факел в руке игрока)
+  function compute(world, x0, y0, w, h, daylight, sources) {
     const ex = x0 - MARGIN;
     const ey = y0 - MARGIN;
     const ew = w + MARGIN * 2;
@@ -65,6 +66,13 @@
         if (liq >> 4 === D.L.LAVA && LAVA_LIGHT > e) e = LAVA_LIGHT;
         block[k] = e;
       }
+    }
+    for (const [sx, sy, lv] of sources || []) {
+      const i = Math.floor(sx) - ex;
+      const j = Math.floor(sy) - ey;
+      if (i < 0 || j < 0 || i >= ew || j >= eh) continue;
+      const k = j * ew + i;
+      if (lv > block[k]) block[k] = Math.min(MAX, lv);
     }
     flood(sky, cost, ew, eh);
     flood(block, cost, ew, eh);

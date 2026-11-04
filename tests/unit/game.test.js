@@ -505,3 +505,17 @@ test('колосс во второй фазе быстрее и злее', () =>
   assert.equal(c.phase, 2);
   assert.ok(game.projectiles.length > 0 || game.events.filter((e) => e.type === 'hurt').length >= 0);
 });
+
+test('факел в руке светит вокруг игрока, меч - нет', () => {
+  const game = flat();
+  game.time = 0.75;
+  const Lt = core('light');
+  hold(game, 'iron_sword');
+  Gm.relight(game);
+  const [cx, cy] = Gm.center(game.player.body);
+  const dim = Lt.at(game.light, Math.floor(cx), Math.floor(cy));
+  hold(game, 'torch', 5);
+  Gm.relight(game);
+  assert.ok(Lt.at(game.light, Math.floor(cx), Math.floor(cy - 0.3)) >= 11);
+  assert.ok(dim < 5);
+});

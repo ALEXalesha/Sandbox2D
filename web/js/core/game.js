@@ -25,6 +25,8 @@
   const RESPAWN = 3;
   const SAFE_FALL = 12;
   const MAGNET = 5.5;
+  // свет предмета в руке
+  const HAND_LIGHT = Object.freeze({ torch: 11, campfire: 9, crystal: 7, crystal_ore: 6, magmite_ore: 5 });
   const START = Object.freeze([['stone_pick', 1], ['wood_sword', 1], ['torch', 12], ['wood', 10]]);
 
   function newPlayer(spawn) {
@@ -73,7 +75,9 @@
     const [cx, cy] = center(game.player.body);
     const x0 = Math.floor(cx) - AREA.x;
     const y0 = Math.floor(cy) - AREA.y;
-    game.light = Lt.compute(game.world, x0, y0, AREA.x * 2, AREA.y * 2, T.daylight(game.time));
+    const held = game.inv[game.player.slot];
+    const glow = !game.player.dead && held && HAND_LIGHT[held.id] ? [[cx, cy - 0.3, HAND_LIGHT[held.id]]] : null;
+    game.light = Lt.compute(game.world, x0, y0, AREA.x * 2, AREA.y * 2, T.daylight(game.time), glow);
     game.lightVersion = game.world.version;
   }
 
@@ -483,7 +487,7 @@
   }
 
   return {
-    STEP, REACH, AREA, PLAYER, START, SAFE_FALL, create, relight, step, place, placeProblem, breakBlock, breakWall, mine,
+    STEP, REACH, AREA, PLAYER, START, HAND_LIGHT, SAFE_FALL, create, relight, step, place, placeProblem, breakBlock, breakWall, mine,
     use, swing, consume, craft, stations, dropItem, inReach, hasSupport, anchored, toSave, fromSave, respawn, die, center,
   };
 });
